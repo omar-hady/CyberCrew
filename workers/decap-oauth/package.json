@@ -1,0 +1,19 @@
+{
+  "name": "cybercrew-decap-oauth",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "GitHub OAuth proxy for Decap CMS (Cloudflare Worker). Based on the official Decap template: https://github.com/sterlingwes/decap-proxy",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "cf-typegen": "wrangler types",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261023.1",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.59.1"
+  }
+}

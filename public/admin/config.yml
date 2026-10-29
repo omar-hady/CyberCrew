@@ -1,15 +1,21 @@
 # Decap CMS — CyberCrew
 #
-# Local development (active below): git-gateway + local_backend + `npm run cms`
-# alongside `npm run dev` (not preview). Docs: https://decapcms.org/docs/decap-proxy/
+# Local development: keep `local_backend` + run `npm run cms` alongside `npm run dev`
+# (not preview). On localhost/127.0.0.1 Decap uses the local proxy and ignores remote
+# OAuth. Docs: https://decapcms.org/docs/decap-proxy/
 #
-# Production (Decap Turbo): after you create a Turbo site, switch the backend block
-# to the commented turbo-github example and paste the real Site ID UUID from the
-# Turbo dashboard Overview tab. Do not invent that value.
-# Docs: https://decapcms.org/docs/turbo-connecting-a-site/
+# Production: GitHub backend + self-hosted Cloudflare Worker OAuth proxy
+# (Decap Turbo is unreachable from some environments). Official guide:
+# https://decapcms.org/docs/backends-overview/#using-github-with-an-oauth-proxy
+# Worker template: https://github.com/sterlingwes/decap-proxy
+# This repo’s Worker: workers/decap-oauth/
 #
-# The local proxy only applies on localhost/127.0.0.1; it does not authenticate
-# and does not use email/password.
+# Before production login works you must:
+# 1. Deploy workers/decap-oauth and note PROXY_URL (no trailing slash)
+# 2. Create a GitHub OAuth App with callback {PROXY_URL}/callback
+# 3. Set Worker secrets GITHUB_OAUTH_ID / GITHUB_OAUTH_SECRET
+# 4. Set OAUTH_ALLOWED_ORIGINS to this site’s production origin(s)
+# 5. Replace REPLACE_WITH_WORKER_ORIGIN below with PROXY_URL and redeploy the site
 
 # Local: when the admin UI is opened on localhost/127.0.0.1 and `npm run cms`
 # is running, Decap talks to this proxy (no auth). Production ignores this block
@@ -20,18 +26,23 @@ local_backend:
     - localhost
     - 127.0.0.1
 
-# Active local / interim backend (works with decap-server; no Turbo Site ID needed).
+# Production GitHub backend (OAuth via Cloudflare Worker).
+# Localhost still uses local_backend / decap-server when `npm run cms` is running.
 backend:
-  name: git-gateway
+  name: github
+  repo: omar-hady/CyberCrew
   branch: main
+  # PROXY_URL only — no path, no trailing slash. Example after deploy:
+  #   https://cybercrew-decap-oauth.<account>.workers.dev
+  #   or https://decap.your-domain.example
+  base_url: https://cybercrew-decap-oauth.cybercrew-community.workers.dev
+  auth_endpoint: auth
 
-# --- Production backend (enable after Turbo Site ID exists) ---
-# Replace the backend block above with:
+# --- Optional: Decap Turbo (only if Turbo becomes reachable again) ---
 # backend:
 #   name: turbo-github
 #   turbo_site_id: PASTE_REAL_UUID_FROM_TURBO_OVERVIEW
 #   branch: main
-# Keep the local_backend block above so localhost still uses decap-server when developing.
 
 # Media uploaded here is committed to the repo and is PUBLIC on static hosts.
 # Paths are relative to the repository root (not the collection folder).

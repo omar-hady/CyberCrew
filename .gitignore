@@ -18,6 +18,12 @@ pnpm-debug.log*
 !.env.example
 .env.production
 
+# Cloudflare Workers (OAuth proxy local / generated)
+workers/**/.wrangler/
+workers/**/node_modules/
+workers/**/.dev.vars
+workers/**/dist/
+
 # local QA / screenshots (not site assets)
 .qa-screenshots/
 

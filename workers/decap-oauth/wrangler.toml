@@ -1,0 +1,30 @@
+#:schema node_modules/wrangler/config-schema.json
+
+# Decap CMS GitHub OAuth proxy — official template:
+# https://github.com/sterlingwes/decap-proxy
+# Docs: https://decapcms.org/docs/backends-overview/#using-github-with-an-oauth-proxy
+#
+# Secrets (never put real values here — use `wrangler secret put`):
+#   GITHUB_OAUTH_ID
+#   GITHUB_OAUTH_SECRET
+#
+# After first deploy, note the Worker URL (*.workers.dev or custom route) and set it as
+# backend.base_url in public/admin/config.yml. GitHub OAuth App callback must be:
+#   {PROXY_URL}/callback
+
+compatibility_date = "2025-11-17"
+main = "src/index.ts"
+name = "cybercrew-decap-oauth"
+
+# Optional: bind a custom domain (zone must already be on this Cloudflare account).
+# route = { pattern = "decap.your-domain.example", zone_name = "your-domain.example", custom_domain = true }
+# workers_dev = false
+
+[vars]
+# "0" = public repo scope (public_repo,user). "1" = private repo scope (repo,user).
+GITHUB_REPO_PRIVATE = "0"
+
+# Comma-separated production site origins that may receive the OAuth postMessage
+# (no trailing slash). Update before deploy to match where /admin/ is hosted.
+# Include Pages preview origins only if you intentionally allow CMS login there.
+OAUTH_ALLOWED_ORIGINS = "https://cybercrew.pages.dev"

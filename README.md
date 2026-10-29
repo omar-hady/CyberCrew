@@ -59,17 +59,19 @@ Published resources power `/library` and `/library/[slug]`. Featured items surfa
 
 **Local:** `npm run dev` + `npm run cms` → open `/admin/` → save → refresh the site. Astro’s content loader watches `src/content/**` and picks up new/changed markdown without a deploy. Do not use `npm run preview` for this check — it serves a frozen `dist/` build.
 
-**Production:** Open `/admin/` on the deployed site (trailing slash) → authenticate via Decap Turbo → create/edit → Decap commits to the content branch → your host rebuilds → pages update after the deploy finishes.
+**Production:** Open `/admin/` on the deployed site (trailing slash) → authenticate with GitHub via the Cloudflare Worker OAuth proxy → create/edit → Decap commits to `main` on `omar-hady/CyberCrew` → your host rebuilds → pages update after the deploy finishes.
 
 Ordinary resource updates should not require hand-editing Astro components once CMS auth + Git are connected.
 
 ## Decap CMS authentication
 
-The admin UI at `/admin/` is **not** authenticated by itself.
+The admin UI at `/admin/` is **not** authenticated by itself. Production login uses a self-hosted [GitHub OAuth proxy on Cloudflare Workers](https://decapcms.org/docs/backends-overview/#using-github-with-an-oauth-proxy) (official template: [sterlingwes/decap-proxy](https://github.com/sterlingwes/decap-proxy)). Decap Turbo is not required.
 
-### Local development (active now)
+**Never commit** GitHub OAuth client secrets, tokens, or `.dev.vars`. Worker secrets are set only with `wrangler secret put` (or the Cloudflare dashboard). Local `decap-server` has no authentication.
 
-`config.yml` uses `backend.name: git-gateway` with `local_backend` so `/admin/` works without a Turbo Site ID ([Decap proxy docs](https://decapcms.org/docs/decap-proxy/)):
+### Local development (unchanged)
+
+`local_backend` stays enabled so localhost uses `decap-server` and never needs the Worker ([Decap proxy docs](https://decapcms.org/docs/decap-proxy/)):
 
 1. From the repo root: `npm run dev` (Astro must be in **dev** mode, not `preview`)
 2. In a second terminal, from the same root: `npm run cms`
@@ -83,26 +85,76 @@ Optional: `npm run cms:check` confirms the proxy is listening on port 8081.
 
 The local proxy writes to files on disk. It does not apply on the production host.
 
-### Production — Decap Turbo (`turbo-github`)
+### Production — GitHub + Cloudflare Worker OAuth (`workers/decap-oauth`)
 
-After the GitHub repo exists, switch the `backend` block in `public/admin/config.yml` to the commented `turbo-github` example (keep the existing `local_backend` block so localhost still uses `decap-server`):
+`public/admin/config.yml` uses the `github` backend for repo `omar-hady/CyberCrew`. Production login works only after you finish the **manual** steps below (nothing in this checklist is deployed or credentialed automatically).
 
-1. Create a GitHub repository and push this project (`main` branch).
-2. Sign up at [Decap Turbo](https://decapcms.org/docs/turbo-getting-started/) and connect GitHub (install the Turbo GitHub App on the account/org that owns the repo).
-3. Create a Turbo **site** with:
-   - Repo: your `owner/name`
-   - Branch: `main`
-   - Config path: `public/admin/config.yml`
-   - Admin interface URL(s): your production origin (and optionally `http://localhost:4321` for local Turbo login)
-4. Paste the **Site ID** (UUID) from the site Overview tab as `turbo_site_id`. **Do not invent this value.**
-5. Redeploy so `/admin/` serves the updated config.
-6. Invite editors from the Turbo dashboard (GitHub OAuth — not email/password in this repo).
+#### Values you will produce
 
-Requires Decap CMS **3.17.0+** (loaded from the CDN script in `src/pages/admin.html`).
+| Item | Value |
+| --- | --- |
+| GitHub OAuth App callback URL | `{PROXY_URL}/callback` (exact; no trailing slash on `{PROXY_URL}`) |
+| Worker secrets | `GITHUB_OAUTH_ID`, `GITHUB_OAUTH_SECRET` |
+| Worker var | `OAUTH_ALLOWED_ORIGINS` = production site origin(s), comma-separated, no trailing slash |
+| Decap `base_url` | `{PROXY_URL}` (Worker origin only — no `/auth`, no trailing slash) |
+| Decap `auth_endpoint` | `auth` |
 
-Production `/admin` login is **not** claimed working until the real Site ID is set and login is tested on a live deploy.
+`{PROXY_URL}` examples after deploy: `https://cybercrew-decap-oauth.<your-subdomain>.workers.dev` or a custom domain you bind in `workers/decap-oauth/wrangler.toml`.
 
-**Never commit credentials, tokens, or private keys.** Decap Turbo does not require storing OAuth client secrets in this repository. Local `decap-server` has no authentication.
+#### Manual setup steps (required before production login)
+
+1. **Confirm GitHub repo access** — Editors who log into `/admin/` must have push access to `omar-hady/CyberCrew` on `main`.
+
+2. **Set allowed site origins on the Worker** — Edit `workers/decap-oauth/wrangler.toml` and replace the `OAUTH_ALLOWED_ORIGINS` placeholder with your real site origin(s), for example:
+   ```toml
+   OAUTH_ALLOWED_ORIGINS = "https://your-pages-or-custom-domain.example"
+   ```
+   Add comma-separated extra origins only if you intentionally allow CMS login there (e.g. a stable custom domain). Do not leave `REPLACE_WITH_…` in place.
+
+3. **Create a GitHub OAuth App** (account that can register apps for this project) at [GitHub → Developer settings → OAuth Apps → New](https://github.com/settings/applications/new):
+   - **Application name:** e.g. `CyberCrew Decap CMS`
+   - **Homepage URL:** `{PROXY_URL}` (or your public site URL)
+   - **Authorization callback URL:** `{PROXY_URL}/callback`
+   - Register the app, then copy the **Client ID** and generate a **Client secret**. Store them outside the repo.
+
+   If you do not know `{PROXY_URL}` yet, deploy the Worker first (step 4), copy the URL Cloudflare prints, then create/update the OAuth App callback to match, then set secrets (step 5).
+
+4. **Deploy the Worker** (from a machine logged into Cloudflare — do this yourself; CI is not configured here):
+   ```bash
+   cd workers/decap-oauth
+   npm install
+   npx wrangler login
+   npx wrangler deploy
+   ```
+   Note the printed Worker URL → that is `{PROXY_URL}`. Optional custom domain: uncomment/edit the `route` in `wrangler.toml` and redeploy.
+
+5. **Set Worker secrets** (never commit these values):
+   ```bash
+   cd workers/decap-oauth
+   npx wrangler secret put GITHUB_OAUTH_ID
+   # paste Client ID when prompted
+   npx wrangler secret put GITHUB_OAUTH_SECRET
+   # paste Client secret when prompted
+   ```
+
+6. **Point Decap at the Worker** — In `public/admin/config.yml`, set:
+   ```yaml
+   backend:
+     name: github
+     repo: omar-hady/CyberCrew
+     branch: main
+     base_url: https://YOUR_ACTUAL_WORKER_ORIGIN
+     auth_endpoint: auth
+   ```
+   Keep the `local_backend` block as-is. Commit/push and let Cloudflare Pages (or your host) rebuild so production `/admin/config.yml` has the real `base_url`.
+
+7. **Private repo only** — If `omar-hady/CyberCrew` is private, set `GITHUB_REPO_PRIVATE = "1"` in `wrangler.toml` and redeploy the Worker so the OAuth scope includes `repo`.
+
+8. **Verify production login** — Open `https://<your-site>/admin/` → Login with GitHub → authorize → confirm the CMS loads the repo. Then create a test entry and confirm a commit appears on `main`.
+
+Production `/admin` login is **not** claimed working until `{PROXY_URL}`, OAuth App callback, Worker secrets, `OAUTH_ALLOWED_ORIGINS`, and `base_url` are all real values and login is tested on a live deploy.
+
+Requires Decap CMS **3.17.0+** (loaded from the CDN script in `src/pages/admin/index.html`).
 
 ## Storage limits (important)
 
@@ -137,22 +189,23 @@ Cloudflare-specific static rules live in `public/_redirects` and `public/_header
    - `PUBLIC_CTF_URL` = real CTF URL when available
    - `NODE_VERSION` = `22` if the dashboard does not pick up `.nvmrc`
 5. Deploy and open the live URL. Confirm pages and `/admin/` load.
-6. Complete Decap Turbo setup (above), then set `turbo_site_id` and redeploy.
+6. Complete the Worker OAuth setup (above), set `backend.base_url` to the real Worker origin, and redeploy the site.
 
-Deployment and CMS auth are **not** claimed complete until you connect the host, set the Turbo Site ID, and verify a live URL plus `/admin` login.
+Deployment and CMS auth are **not** claimed complete until you connect the host, finish Worker + GitHub OAuth App setup, and verify a live URL plus `/admin` login.
 
 ## Project structure
 
 ```
-public/           Static assets, Decap admin, uploads, Cloudflare _headers/_redirects
-src/content/      Markdown collections (CMS-managed)
-src/components/   UI building blocks
-src/layouts/      Base layout + SEO
-src/pages/        Routes (includes dynamic /robots.txt)
-src/styles/       Design tokens + global CSS
-src/data/site.ts  Nav, social/email stubs, env-backed URLs
-src/lib/          Resource and track helpers
-Logo/             Original brand package (source of truth)
+public/                 Static assets, Decap admin, uploads, Cloudflare _headers/_redirects
+workers/decap-oauth/    Cloudflare Worker GitHub OAuth proxy for production Decap login
+src/content/            Markdown collections (CMS-managed)
+src/components/         UI building blocks
+src/layouts/            Base layout + SEO
+src/pages/              Routes (includes dynamic /robots.txt)
+src/styles/             Design tokens + global CSS
+src/data/site.ts        Nav, social/email stubs, env-backed URLs
+src/lib/                Resource and track helpers
+Logo/                   Original brand package (source of truth)
 ```
 
 Track listings (home, `/tracks`, about, footer) load from `src/content/tracks/` so CMS edits stay in sync with detail pages.
@@ -163,11 +216,11 @@ Semantic landmarks, skip link, visible focus rings, keyboard mobile nav (Escape,
 
 ## Remaining setup checklist (requires your input / accounts)
 
-1. Push `main` to GitHub if the remote is not yet the source of truth for Cloudflare (do not invent owner/repo names).
-2. Connect Cloudflare Pages to that repo; confirm build uses `npm run build` → `dist` (Node 22).
+1. Push `main` to GitHub if the remote is not yet the source of truth for Cloudflare.
+2. Connect Cloudflare Pages to `omar-hady/CyberCrew`; confirm build uses `npm run build` → `dist` (Node 22).
 3. Set `PUBLIC_SITE_URL` to the real domain (then rebuild) — enables canonical URLs, sitemap, and the Sitemap line in `/robots.txt`.
 4. Set `PUBLIC_CTF_URL` when the arena URL is known.
-5. Configure Decap Turbo, switch `backend` to `turbo-github`, and paste the real Site ID UUID into `public/admin/config.yml` (do not invent it).
+5. Deploy `workers/decap-oauth`, create the GitHub OAuth App (`{PROXY_URL}/callback`), set Worker secrets, set `OAUTH_ALLOWED_ORIGINS`, and replace `base_url` in `public/admin/config.yml` (see Production OAuth section above).
 6. Optionally set `site_url` / `display_url` in `public/admin/config.yml` to the production origin.
-7. Test `/admin/` login on the live site after Turbo Site ID is set.
+7. Test `/admin/` login on the live site after `base_url` and secrets are real.
 8. Add real community contact/social links in `src/data/site.ts` when available (empty values stay hidden).
