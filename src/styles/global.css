@@ -1,0 +1,565 @@
+/* CyberCrew design system — derived from Logo pack
+   Accent #ee2227 · Ember #2e1010 · Ink #020202
+   Geometry: sharp 45° cuts + circular badge rings from STICKER / circ marks */
+
+@font-face {
+  font-family: "Syne";
+  font-style: normal;
+  font-weight: 500 800;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/fontsource/fonts/syne:vf@latest/latin-wght-normal.woff2")
+    format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  /* Brand fills from Logo/SVG WHITE&RED, BLACK&RED, circ gradBG */
+  --cc-accent: #ee2227;
+  --cc-accent-deep: #b5181c;
+  --cc-accent-hot: #ff3a3f;
+  --cc-accent-ring: #ed2529;
+  --cc-accent-soft: color-mix(in srgb, var(--cc-accent) 12%, transparent);
+  --cc-ember: #2e1010;
+  --cc-ember-mid: #4a1818;
+  --cc-ember-soft: color-mix(in srgb, var(--cc-ember) 55%, transparent);
+
+  --cc-paper: #f4ecec;
+  --cc-paper-bright: #fbf7f7;
+  --cc-ink: #020202;
+  --cc-ink-elevated: #0a0505;
+  --cc-surface: #100808;
+  --cc-surface-2: #180c0c;
+  --cc-surface-3: #221212;
+  --cc-line: #2a1515;
+  --cc-line-strong: #3f2020;
+  --cc-text: #efe6e6;
+  --cc-text-muted: #a08c8c;
+  --cc-text-faint: #6e5757;
+  --cc-danger: #ee2227;
+  --cc-warning: #c9a227;
+
+  --font-display: "Syne", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 7rem;
+
+  --container: 72rem;
+  --container-wide: 84rem;
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --chamfer: 12px;
+
+  --shadow-soft: 0 28px 56px -36px rgba(0, 0, 0, 0.78);
+  --shadow-glow: 0 0 48px -12px color-mix(in srgb, var(--cc-accent) 38%, transparent);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration: 220ms;
+
+  --header-h: 4.5rem;
+  --focus: 0 0 0 2px var(--cc-ink), 0 0 0 4px var(--cc-accent);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--cc-ink);
+  color: var(--cc-text);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Ember atmosphere — logo’s smoky crimson field, not neon grid clutter */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 52% 48% at 12% 18%, rgba(238, 34, 39, 0.16), transparent 58%),
+    radial-gradient(ellipse 42% 36% at 88% 8%, rgba(46, 16, 16, 0.85), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 70% 92%, rgba(238, 34, 39, 0.07), transparent 60%),
+    linear-gradient(180deg, var(--cc-ink) 0%, var(--cc-ink-elevated) 100%);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.09;
+  background-image:
+    linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(100% - 1px),
+      color-mix(in srgb, var(--cc-accent) 35%, var(--cc-line)) calc(100% - 1px)
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(100% - 1px),
+      color-mix(in srgb, var(--cc-accent) 28%, var(--cc-line)) calc(100% - 1px)
+    );
+  background-size: 96px 96px;
+  mask-image: radial-gradient(ellipse 48% 42% at 78% 22%, black, transparent 72%);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: var(--cc-accent-hot);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: color var(--duration) var(--ease-out);
+}
+
+a:hover {
+  color: var(--cc-paper-bright);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  color: var(--cc-paper-bright);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(2.6rem, 6.4vw, 4.55rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+h2 {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+}
+
+h3 {
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+.muted {
+  color: var(--cc-text-muted);
+}
+
+.container {
+  width: min(100% - var(--gutter) * 2, var(--container));
+  margin-inline: auto;
+}
+
+.container-wide {
+  width: min(100% - var(--gutter) * 2, var(--container-wide));
+  margin-inline: auto;
+}
+
+.section {
+  padding-block: var(--space-8);
+}
+
+.section-sm {
+  padding-block: var(--space-7);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cc-accent);
+  margin: 0 0 var(--space-4);
+}
+
+.eyebrow::before {
+  content: "";
+  width: 1.35rem;
+  height: 2px;
+  background: var(--cc-accent);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
+}
+
+/* Chamfered frame — matches logo’s sharp 45° cuts */
+.chamfer {
+  clip-path: polygon(
+    var(--chamfer) 0,
+    100% 0,
+    100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%,
+    0 100%,
+    0 var(--chamfer)
+  );
+}
+
+.chamfer-sm {
+  --chamfer: 8px;
+}
+
+.panel {
+  background: var(--cc-surface);
+  border: 1px solid var(--cc-line);
+  position: relative;
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  border-top: 1px solid var(--cc-accent);
+  border-left: 1px solid var(--cc-accent);
+  pointer-events: none;
+}
+
+.panel::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  border-right: 1px solid var(--cc-accent);
+  border-bottom: 1px solid var(--cc-accent);
+  pointer-events: none;
+}
+
+.btn {
+  --btn-bg: var(--cc-accent);
+  --btn-fg: #fff;
+  --btn-border: var(--cc-accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 2.875rem;
+  padding: 0.7rem 1.35rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: var(--btn-fg);
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  cursor: pointer;
+  transition:
+    background var(--duration) var(--ease-out),
+    color var(--duration) var(--ease-out),
+    border-color var(--duration) var(--ease-out),
+    transform var(--duration) var(--ease-out),
+    box-shadow var(--duration) var(--ease-out);
+}
+
+.btn:hover {
+  --btn-bg: var(--cc-accent-hot);
+  --btn-border: var(--cc-accent-hot);
+  color: #fff;
+  text-decoration: none;
+  box-shadow: var(--shadow-glow);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-secondary {
+  --btn-bg: transparent;
+  --btn-fg: var(--cc-paper);
+  --btn-border: var(--cc-line-strong);
+}
+
+.btn-secondary:hover {
+  --btn-bg: var(--cc-surface-3);
+  --btn-fg: var(--cc-paper-bright);
+  --btn-border: var(--cc-accent);
+  color: var(--cc-paper-bright);
+  box-shadow: none;
+}
+
+.btn-ghost {
+  --btn-bg: transparent;
+  --btn-fg: var(--cc-text);
+  --btn-border: transparent;
+  clip-path: none;
+  padding-inline: 0.75rem;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.btn-ghost:hover {
+  --btn-fg: var(--cc-accent);
+  color: var(--cc-accent);
+  background: transparent;
+  box-shadow: none;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cc-text-muted);
+  background: var(--cc-surface-2);
+  border: 1px solid var(--cc-line);
+}
+
+.tag-accent {
+  color: var(--cc-accent-hot);
+  border-color: color-mix(in srgb, var(--cc-accent) 40%, var(--cc-line));
+  background: var(--cc-accent-soft);
+}
+
+.grid-2 {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.grid-3 {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.grid-4 {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--gutter);
+  z-index: 1000;
+  padding: 0.75rem 1rem;
+  background: var(--cc-accent);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: var(--space-3);
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.7s var(--ease-out);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.prose {
+  max-width: 65ch;
+}
+
+.prose > * + * {
+  margin-top: 1rem;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.25rem;
+  color: var(--cc-text-muted);
+}
+
+.prose li + li {
+  margin-top: 0.4rem;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, var(--cc-accent), transparent 70%);
+  border: 0;
+  margin: 0;
+}
+
+.page-hero {
+  padding-top: calc(var(--header-h) + var(--space-7));
+  padding-bottom: var(--space-7);
+  position: relative;
+}
+
+.page-hero::after {
+  content: "";
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: 0;
+  height: 1px;
+  max-width: var(--container-wide);
+  margin-inline: auto;
+  background: linear-gradient(90deg, var(--cc-accent), transparent 55%);
+}
+
+.page-hero h1 {
+  margin: 0 0 var(--space-4);
+}
+
+.page-hero .lede {
+  max-width: 42rem;
+  font-size: 1.125rem;
+  color: var(--cc-text-muted);
+  margin: 0;
+}
+
+.empty-state {
+  padding: var(--space-7);
+  text-align: center;
+  border: 1px dashed var(--cc-line-strong);
+  background: var(--cc-surface);
+  color: var(--cc-text-muted);
+}
+
+.empty-state strong {
+  display: block;
+  color: var(--cc-paper);
+  font-family: var(--font-display);
+  margin-bottom: var(--space-2);
+}
+
+/* Wordmark lockup — echoes logo hierarchy: heavy CYBER + tracked CREW */
+.wordmark {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1;
+  gap: 0.18rem;
+}
+
+.wordmark-cyber {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cc-paper-bright);
+}
+
+.wordmark-crew {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.48em;
+  text-transform: uppercase;
+  color: var(--cc-accent);
+  margin-left: 0.05rem;
+}

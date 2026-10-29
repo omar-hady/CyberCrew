@@ -1,0 +1,130 @@
+# Decap CMS — CyberCrew
+#
+# Production auth: Decap Turbo (turbo-github).
+# Create a Turbo site for this repo, then replace the placeholder below with the
+# Site ID UUID from the Turbo dashboard Overview tab. Do not invent this value.
+# Docs: https://decapcms.org/docs/turbo-connecting-a-site/
+#
+# Local development: keep local_backend true and run `npm run cms` alongside
+# `npm run dev`. The local proxy only applies on localhost; production uses Turbo.
+# Add http://localhost:4321 (or your Astro origin) to the Turbo site's Admin URLs
+# if you also want Turbo login while developing against the remote repo.
+
+local_backend: true
+
+backend:
+  name: turbo-github
+  # REPLACE_WITH_DECAP_TURBO_SITE_ID — paste the UUID from Decap Turbo → Site → Overview.
+  # /admin production login will not work until this is set to the real Site ID.
+  turbo_site_id: REPLACE_WITH_DECAP_TURBO_SITE_ID
+  branch: main
+
+# Media uploaded here is committed to the repo and is PUBLIC on static hosts.
+media_folder: public/uploads/resources
+public_folder: /uploads/resources
+
+# Set these to your production origin when known, e.g. https://cybercrew.example
+# site_url: https://your-domain.example
+# display_url: https://your-domain.example
+
+logo_url: /brand/logo-badge.webp
+
+collections:
+  - name: resources
+    label: Resources
+    label_singular: Resource
+    folder: src/content/resources
+    create: true
+    slug: "{{slug}}"
+    extension: md
+    format: frontmatter
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Description, name: description, widget: text }
+      - label: Learning track
+        name: track
+        widget: select
+        options:
+          - { label: Penetration Testing, value: penetration-testing }
+          - { label: "SOC & Blue Team", value: soc-blue-team }
+          - { label: Malware Analysis, value: malware-analysis }
+          - { label: CTF Learning, value: ctf-learning }
+          - { label: General, value: general }
+      - label: Difficulty
+        name: difficulty
+        widget: select
+        options: [beginner, intermediate, advanced]
+      - label: Resource type
+        name: type
+        widget: select
+        options:
+          - { label: PDF, value: pdf }
+          - { label: Documentation, value: documentation }
+          - { label: External reference, value: external }
+          - { label: Lab, value: lab }
+          - { label: Cheatsheet, value: cheatsheet }
+          - { label: Session materials, value: session }
+      - { label: Tags, name: tags, widget: list, required: false }
+      - label: External URL
+        name: url
+        widget: string
+        required: false
+        hint: Use for documentation/external links. Prefer https URLs.
+      - label: File
+        name: file
+        widget: file
+        required: false
+        media_folder: /public/uploads/resources
+        public_folder: /uploads/resources
+        hint: Uploaded files in a public repo are publicly downloadable.
+      - { label: Thumbnail, name: thumbnail, widget: image, required: false }
+      - { label: Featured, name: featured, widget: boolean, default: false }
+      - { label: Published, name: published, widget: boolean, default: true }
+      - { label: Publication date, name: pubDate, widget: datetime }
+      - { label: Order / priority, name: order, widget: number, default: 100, value_type: int }
+      - { label: Body, name: body, widget: markdown, required: false }
+
+  - name: announcements
+    label: Announcements
+    label_singular: Announcement
+    folder: src/content/announcements
+    create: true
+    slug: "{{slug}}"
+    extension: md
+    format: frontmatter
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Summary, name: summary, widget: text }
+      - { label: Date, name: date, widget: datetime }
+      - label: Kind
+        name: kind
+        widget: select
+        options: [announcement, workshop, session, contribution]
+      - { label: Published, name: published, widget: boolean, default: true }
+      - { label: Link, name: link, widget: string, required: false }
+      - { label: Body, name: body, widget: markdown, required: false }
+
+  - name: tracks
+    label: Tracks
+    label_singular: Track
+    folder: src/content/tracks
+    create: false
+    slug: "{{slug}}"
+    extension: md
+    format: frontmatter
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Short description, name: short, widget: text }
+      - { label: Level label, name: level, widget: string }
+      - { label: Order, name: order, widget: number, value_type: int }
+      - label: Objectives
+        name: objectives
+        widget: list
+      - label: Roadmap
+        name: roadmap
+        widget: list
+        fields:
+          - { label: Title, name: title, widget: string }
+          - { label: Description, name: description, widget: text }
+      - { label: Tools, name: tools, widget: list, required: false }
+      - { label: Body, name: body, widget: markdown, required: false }

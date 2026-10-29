@@ -1,0 +1,111 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const items = (await getCollection("announcements"))
+  .filter((a) => a.data.published)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<BaseLayout
+  title="Community"
+  description="CyberCrew community announcements, workshops, sessions, and contribution updates."
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Belong to the crew</p>
+      <h1>Community</h1>
+      <p class="lede">
+        Workshops, practice sessions, announcements, and contribution calls — published from
+        project content files. Placeholder entries are explicitly marked until organizers
+        confirm details.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-sm">
+    <div class="container">
+      {
+        items.length ? (
+          <ol class="feed">
+            {items.map((item) => (
+              <li class="panel">
+                <div class="top">
+                  <span class="tag tag-accent">{item.data.kind}</span>
+                  <time datetime={item.data.date.toISOString()}>
+                    {item.data.date.toLocaleDateString("en-GB", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </time>
+                </div>
+                <h2>
+                  {item.data.link ? (
+                    <a href={item.data.link}>{item.data.title}</a>
+                  ) : (
+                    item.data.title
+                  )}
+                </h2>
+                <p>{item.data.summary}</p>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <div class="empty-state">
+            <strong>No community posts yet</strong>
+            Add announcements through Decap CMS when you are ready.
+          </div>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .feed {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .feed li {
+    padding: 1.25rem 1.35rem;
+  }
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  time {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--cc-text-faint);
+    letter-spacing: 0.04em;
+  }
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+  }
+
+  h2 a {
+    color: var(--cc-paper-bright);
+    text-decoration: none;
+  }
+
+  h2 a:hover {
+    color: var(--cc-accent);
+  }
+
+  p {
+    margin: 0;
+    color: var(--cc-text-muted);
+  }
+</style>

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <!-- Ensures ./config.yml resolves when the page is opened as /admin (no trailing slash). -->
+    <base href="/admin/" />
+    <title>CyberCrew Content Admin</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="theme-color" content="#020202" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: #020202;
+        color: #efe6e6;
+        font-family: "IBM Plex Sans", system-ui, sans-serif;
+      }
+      .boot {
+        max-width: 40rem;
+        margin: 4rem auto;
+        padding: 1.5rem;
+        border: 1px solid #2a1616;
+      }
+      .boot code {
+        color: #ee2227;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>
+      <div class="boot">
+        <p>JavaScript is required for Decap CMS.</p>
+      </div>
+    </noscript>
+    <!-- Decap CMS 3.17+ includes turbo-github. Auth via Decap Turbo (see README). -->
+    <script src="https://cdn.jsdelivr.net/npm/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  </body>
+</html>

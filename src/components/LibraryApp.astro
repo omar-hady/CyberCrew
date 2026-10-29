@@ -1,0 +1,350 @@
+---
+import type { Resource } from "../lib/resources";
+import {
+  difficultyLabel,
+  resourceHref,
+  trackLabel,
+  typeLabel,
+} from "../lib/resources";
+
+interface Props {
+  resources: Resource[];
+}
+
+const { resources } = Astro.props;
+
+const payload = resources.map((r) => ({
+  id: r.id,
+  href: resourceHref(r),
+  title: r.data.title,
+  description: r.data.description,
+  track: r.data.track,
+  difficulty: r.data.difficulty,
+  type: r.data.type,
+  tags: r.data.tags,
+  featured: r.data.featured,
+  pubDate: r.data.pubDate.toISOString(),
+  order: r.data.order,
+}));
+---
+
+<div class="library" data-library>
+  <form class="filters panel" data-filters>
+    <div class="field grow">
+      <label for="q">Search</label>
+      <input
+        id="q"
+        name="q"
+        type="search"
+        placeholder="Search titles, tags…"
+        autocomplete="off"
+      />
+    </div>
+    <div class="field">
+      <label for="track">Track</label>
+      <select id="track" name="track">
+        <option value="">All tracks</option>
+        {
+          Object.entries(trackLabel).map(([value, label]) => (
+            <option value={value}>{label}</option>
+          ))
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="type">Type</label>
+      <select id="type" name="type">
+        <option value="">All types</option>
+        {
+          Object.entries(typeLabel).map(([value, label]) => (
+            <option value={value}>{label}</option>
+          ))
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="difficulty">Difficulty</label>
+      <select id="difficulty" name="difficulty">
+        <option value="">All levels</option>
+        {
+          Object.entries(difficultyLabel).map(([value, label]) => (
+            <option value={value}>{label}</option>
+          ))
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="sort">Sort</label>
+      <select id="sort" name="sort">
+        <option value="featured">Featured first</option>
+        <option value="newest">Newest</option>
+        <option value="title">Title A–Z</option>
+      </select>
+    </div>
+    <button type="button" class="btn btn-secondary" data-reset>Reset</button>
+  </form>
+
+  <p class="status" data-status aria-live="polite"></p>
+
+  <div class="results" data-results></div>
+
+  <div class="empty-state" data-empty hidden>
+    <strong>No matching resources</strong>
+    Try clearing filters or searching a different keyword.
+  </div>
+</div>
+
+<script
+  type="application/json"
+  id="library-data"
+  set:html={JSON.stringify(payload)}
+/>
+
+<script>
+  type Item = {
+    id: string;
+    href: string;
+    title: string;
+    description: string;
+    track: string;
+    difficulty: string;
+    type: string;
+    tags: string[];
+    featured: boolean;
+    pubDate: string;
+    order: number;
+  };
+
+  const trackLabel: Record<string, string> = {
+    "penetration-testing": "Penetration Testing",
+    "soc-blue-team": "SOC & Blue Team",
+    "malware-analysis": "Malware Analysis",
+    "ctf-learning": "CTF Learning",
+    general: "General",
+  };
+
+  const typeLabel: Record<string, string> = {
+    pdf: "PDF",
+    documentation: "Documentation",
+    external: "External",
+    lab: "Lab",
+    cheatsheet: "Cheatsheet",
+    session: "Session",
+  };
+
+  const difficultyLabel: Record<string, string> = {
+    beginner: "Beginner",
+    intermediate: "Intermediate",
+    advanced: "Advanced",
+  };
+
+  const root = document.querySelector("[data-library]");
+  const dataEl = document.getElementById("library-data");
+  if (!root || !dataEl) throw new Error("Library mount missing");
+
+  const items = JSON.parse(dataEl.textContent || "[]") as Item[];
+  const form = root.querySelector("[data-filters]") as HTMLFormElement;
+  const results = root.querySelector("[data-results]") as HTMLElement;
+  const empty = root.querySelector("[data-empty]") as HTMLElement;
+  const status = root.querySelector("[data-status]") as HTMLElement;
+  const resetBtn = root.querySelector("[data-reset]") as HTMLButtonElement;
+
+  const params = new URLSearchParams(window.location.search);
+  for (const key of ["q", "track", "type", "difficulty", "sort"]) {
+    const value = params.get(key);
+    const field = form.elements.namedItem(key);
+    if (value && field instanceof HTMLInputElement) field.value = value;
+    if (value && field instanceof HTMLSelectElement) field.value = value;
+  }
+
+  function syncUrl() {
+    const fd = new FormData(form);
+    const next = new URLSearchParams();
+    for (const [k, v] of fd.entries()) {
+      if (typeof v === "string" && v.trim()) next.set(k, v.trim());
+    }
+    const qs = next.toString();
+    const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+    window.history.replaceState({}, "", url);
+  }
+
+  function filtered() {
+    const fd = new FormData(form);
+    const q = String(fd.get("q") || "")
+      .trim()
+      .toLowerCase();
+    const track = String(fd.get("track") || "");
+    const type = String(fd.get("type") || "");
+    const difficulty = String(fd.get("difficulty") || "");
+    const sort = String(fd.get("sort") || "featured");
+
+    let list = items.filter((item) => {
+      if (track && item.track !== track) return false;
+      if (type && item.type !== type) return false;
+      if (difficulty && item.difficulty !== difficulty) return false;
+      if (!q) return true;
+      const hay = [item.title, item.description, item.tags.join(" "), trackLabel[item.track]]
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
+    });
+
+    list = [...list].sort((a, b) => {
+      if (sort === "title") return a.title.localeCompare(b.title);
+      if (sort === "newest")
+        return new Date(b.pubDate).valueOf() - new Date(a.pubDate).valueOf();
+      if (a.featured !== b.featured) return a.featured ? -1 : 1;
+      if (a.order !== b.order) return a.order - b.order;
+      return new Date(b.pubDate).valueOf() - new Date(a.pubDate).valueOf();
+    });
+
+    return list;
+  }
+
+  function render() {
+    const list = filtered();
+    syncUrl();
+    status.textContent = `${list.length} resource${list.length === 1 ? "" : "s"}`;
+    empty.hidden = list.length > 0;
+    results.innerHTML = list
+      .map(
+        (item) => `
+      <article class="resource-card panel">
+        <div class="meta">
+          <span class="tag tag-accent">${typeLabel[item.type] ?? item.type}</span>
+          <span class="tag">${difficultyLabel[item.difficulty] ?? item.difficulty}</span>
+          ${item.featured ? '<span class="tag">Featured</span>' : ""}
+        </div>
+        <h3><a href="${item.href}">${escapeHtml(item.title)}</a></h3>
+        <p>${escapeHtml(item.description)}</p>
+        <div class="foot">
+          <span>${trackLabel[item.track] ?? item.track}</span>
+          <a class="more" href="${item.href}">View</a>
+        </div>
+      </article>`,
+      )
+      .join("");
+  }
+
+  function escapeHtml(value: string) {
+    return value
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  form.addEventListener("input", render);
+  form.addEventListener("change", render);
+  resetBtn.addEventListener("click", () => {
+    form.reset();
+    render();
+  });
+
+  render();
+</script>
+
+<style>
+  .filters {
+    display: grid;
+    gap: 0.85rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cc-text-faint);
+  }
+
+  input,
+  select {
+    width: 100%;
+    min-height: 2.6rem;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--cc-line-strong);
+    background: var(--cc-ink);
+    color: var(--cc-text);
+    font: inherit;
+  }
+
+  .status {
+    margin: 0 0 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--cc-text-muted);
+  }
+
+  .results {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .results :global(.resource-card) {
+    padding: 1.25rem 1.35rem 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .results :global(.meta) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .results :global(h3) {
+    margin: 0;
+    font-size: 1.15rem;
+  }
+
+  .results :global(h3 a) {
+    color: var(--cc-paper-bright);
+    text-decoration: none;
+  }
+
+  .results :global(p) {
+    margin: 0;
+    color: var(--cc-text-muted);
+    font-size: 0.95rem;
+    flex: 1;
+  }
+
+  .results :global(.foot) {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--cc-line);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--cc-text-faint);
+  }
+
+  .results :global(.more) {
+    color: var(--cc-accent);
+    text-decoration: none;
+  }
+
+  @media (min-width: 720px) {
+    .filters {
+      grid-template-columns: 1.4fr repeat(4, 1fr) auto;
+      align-items: end;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .results {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

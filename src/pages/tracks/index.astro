@@ -1,0 +1,37 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import TrackCard from "../../components/TrackCard.astro";
+import { site } from "../../data/site";
+---
+
+<BaseLayout
+  title="Learning Tracks"
+  description="Explore CyberCrew learning tracks for penetration testing, SOC & blue team, malware analysis, and CTF practice."
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Curriculum paths</p>
+      <h1>Learning tracks</h1>
+      <p class="lede">
+        Each track includes an introduction, objectives, an ordered roadmap, and links into
+        matching library resources. Content depth grows as the community publishes materials.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-sm">
+    <div class="container-wide grid-2">
+      {
+        site.tracks.map((t, i) => (
+          <TrackCard
+            slug={t.slug}
+            title={t.title}
+            short={t.short}
+            level={t.level}
+            index={i}
+          />
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

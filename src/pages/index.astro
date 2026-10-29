@@ -1,0 +1,379 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/home/Hero.astro";
+import TrackCard from "../components/TrackCard.astro";
+import ResourceCard from "../components/ResourceCard.astro";
+import { site } from "../data/site";
+import { getFeaturedResources } from "../lib/resources";
+import { getCollection } from "astro:content";
+
+const featured = await getFeaturedResources(4);
+const announcements = (await getCollection("announcements"))
+  .filter((a) => a.data.published)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const journey = [
+  {
+    step: "01",
+    title: "Choose a track",
+    text: "Pick a focus area that matches your current curiosity and experience.",
+  },
+  {
+    step: "02",
+    title: "Study the roadmap",
+    text: "Follow ordered milestones instead of jumping randomly between tools.",
+  },
+  {
+    step: "03",
+    title: "Use the library",
+    text: "Filter resources by type and difficulty as you progress.",
+  },
+  {
+    step: "04",
+    title: "Practice in the arena",
+    text: "Apply skills in the community CTF platform when it is linked.",
+  },
+];
+---
+
+<BaseLayout>
+  <Hero />
+
+  <section class="signals-bar" aria-label="Learning focus areas">
+    <div class="container-wide signals">
+      <span>Pentest</span>
+      <span>Blue Team</span>
+      <span>Malware</span>
+      <span>CTF</span>
+    </div>
+  </section>
+
+  <section class="section intro" aria-labelledby="intro-title">
+    <div class="container reveal">
+      <p class="eyebrow">What is CyberCrew</p>
+      <div class="intro-grid">
+        <h2 id="intro-title">A crew for practical cybersecurity learning</h2>
+        <div class="prose">
+          <p class="muted">
+            CyberCrew brings learners together around structured tracks, shared resources,
+            workshops, and challenge practice. The emphasis is curiosity with discipline —
+            ethics, methodology, and community knowledge over hype.
+          </p>
+          <p class="muted">
+            Content on this site is managed as static files so organizers can publish through
+            Decap CMS without running an application backend for everyday updates.
+          </p>
+          <a class="btn btn-secondary" href="/about">About the community</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-sm tracks-section" aria-labelledby="tracks-title">
+    <div class="container-wide">
+      <div class="section-head reveal">
+        <div>
+          <p class="eyebrow">Learning tracks</p>
+          <h2 id="tracks-title">Four paths. One crew.</h2>
+        </div>
+        <a class="btn btn-secondary" href="/tracks">All tracks</a>
+      </div>
+      <div class="grid-4">
+        {
+          site.tracks.map((t, i) => (
+            <div class="reveal" style={`transition-delay:${i * 60}ms`}>
+              <TrackCard
+                slug={t.slug}
+                title={t.title}
+                short={t.short}
+                level={t.level}
+                index={i}
+              />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section journey" aria-labelledby="journey-title">
+    <div class="container">
+      <div class="reveal">
+        <p class="eyebrow">Learning journey</p>
+        <h2 id="journey-title">A simple progression model</h2>
+        <p class="muted lede">
+          No fabricated student counts or certificates — just a clear way to move from
+          orientation to deliberate practice.
+        </p>
+      </div>
+      <ol class="journey-list">
+        {
+          journey.map((item, i) => (
+            <li class="journey-item panel reveal" style={`transition-delay:${i * 70}ms`}>
+              <span class="step">{item.step}</span>
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section-sm" aria-labelledby="featured-title">
+    <div class="container-wide">
+      <div class="section-head reveal">
+        <div>
+          <p class="eyebrow">Featured resources</p>
+          <h2 id="featured-title">Start in the library</h2>
+        </div>
+        <a class="btn btn-secondary" href="/library">Open library</a>
+      </div>
+      {
+        featured.length ? (
+          <div class="grid-2">
+            {featured.map((resource, i) => (
+              <div class="reveal" style={`transition-delay:${i * 50}ms`}>
+                <ResourceCard resource={resource} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state">
+            <strong>No featured resources yet</strong>
+            Publish resources in Decap CMS and mark them as featured.
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="section community-band" aria-labelledby="community-title">
+    <div class="container-wide band panel reveal">
+      <div>
+        <p class="eyebrow">Community</p>
+        <h2 id="community-title">Sessions, workshops, and updates</h2>
+        <p class="muted">
+          Announcements below use real content files in this project. Placeholder entries are
+          labeled as such until organizers confirm schedules.
+        </p>
+        <a class="btn" href="/community">Community hub</a>
+      </div>
+      <ul class="announce-list">
+        {
+          announcements.map((a) => (
+            <li>
+              <span class="tag">{a.data.kind}</span>
+              <div>
+                <h3>
+                  {a.data.link ? <a href={a.data.link}>{a.data.title}</a> : a.data.title}
+                </h3>
+                <p>{a.data.summary}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section-sm cta-final" aria-labelledby="cta-title">
+    <div class="container reveal">
+      <div class="cta-panel panel">
+        <h2 id="cta-title">Ready to train with intention?</h2>
+        <p class="muted">
+          Explore a track, pull resources from the library, then practice in the CTF Arena
+          when the external platform URL is configured.
+        </p>
+        <div class="actions">
+          <a class="btn" href="/tracks">Choose a track</a>
+          <a class="btn btn-secondary" href="/ctf">CTF Arena intro</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .signals-bar {
+    padding-block: 0.85rem 1.5rem;
+    border-bottom: 1px solid var(--cc-line);
+  }
+
+  .signals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 1.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cc-text-faint);
+  }
+
+  .signals span {
+    position: relative;
+    padding-left: 0.95rem;
+  }
+
+  .signals span::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    background: var(--cc-accent);
+    transform: translateY(-50%) rotate(45deg);
+  }
+
+  .intro-grid {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .intro-grid h2 {
+    margin: 0;
+    max-width: 14ch;
+  }
+
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: var(--space-5);
+  }
+
+  .section-head h2 {
+    margin: 0;
+  }
+
+  .lede {
+    max-width: 40rem;
+  }
+
+  .journey-list {
+    list-style: none;
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .journey-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    padding: 1.2rem 1.25rem;
+  }
+
+  .journey-item .step {
+    font-family: var(--font-mono);
+    color: var(--cc-accent);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+  }
+
+  .journey-item h3 {
+    margin: 0 0 0.35rem;
+    font-size: 1.15rem;
+  }
+
+  .journey-item p {
+    margin: 0;
+    color: var(--cc-text-muted);
+    font-size: 0.95rem;
+  }
+
+  .band {
+    display: grid;
+    gap: var(--space-6);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .band h2 {
+    margin: 0 0 0.75rem;
+  }
+
+  .announce-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .announce-list li {
+    display: grid;
+    gap: 0.55rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--cc-line);
+  }
+
+  .announce-list h3 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  .announce-list h3 a {
+    color: var(--cc-paper-bright);
+    text-decoration: none;
+  }
+
+  .announce-list p {
+    margin: 0.35rem 0 0;
+    color: var(--cc-text-muted);
+    font-size: 0.92rem;
+  }
+
+  .cta-panel {
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+    text-align: center;
+    background:
+      radial-gradient(ellipse 70% 80% at 50% 0%, rgba(238, 34, 39, 0.1), transparent 55%),
+      var(--cc-surface);
+  }
+
+  .community-band .band {
+    background:
+      linear-gradient(135deg, rgba(238, 34, 39, 0.06), transparent 42%),
+      var(--cc-surface);
+  }
+
+  .cta-panel h2 {
+    margin: 0 0 0.75rem;
+  }
+
+  .cta-panel .muted {
+    max-width: 36rem;
+    margin: 0 auto 1.5rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+
+  @media (min-width: 860px) {
+    .intro-grid {
+      grid-template-columns: 1fr 1.1fr;
+      align-items: start;
+    }
+
+    .journey-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .band {
+      grid-template-columns: 1fr 1.1fr;
+      align-items: start;
+    }
+  }
+</style>

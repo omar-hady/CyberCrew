@@ -1,0 +1,162 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/site";
+---
+
+<BaseLayout
+  title="About"
+  description="About CyberCrew — purpose, learning philosophy, and tracks for the cybersecurity community."
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Who we are</p>
+      <h1>About CyberCrew</h1>
+      <p class="lede">{site.tagline}</p>
+    </div>
+  </section>
+
+  <section class="section-sm">
+    <div class="container about-grid">
+      <article class="panel block">
+        <h2>Purpose</h2>
+        <p class="muted">
+          CyberCrew exists to help people learn cybersecurity through structured tracks,
+          shared resources, community sessions, and challenge practice. The brand identity —
+          horned emblem, sharp CYBER letterforms, tracked red CREW — signals a focused crew
+          without resorting to cliché neon or binary-code aesthetics.
+        </p>
+
+        <h2>Learning philosophy</h2>
+        <ul>
+          <li>Ethics and scope come before techniques.</li>
+          <li>Methodology beats tool collecting.</li>
+          <li>Notes and writeups compound faster than isolated solves.</li>
+          <li>Community knowledge should be easy to publish and discover.</li>
+          <li>We do not invent metrics, certificates, or fake member counts.</li>
+        </ul>
+
+        <h2>Tracks</h2>
+        <div class="track-links">
+          {
+            site.tracks.map((t) => (
+              <a href={`/tracks/${t.slug}`}>
+                <strong>{t.title}</strong>
+                <span>{t.short}</span>
+              </a>
+            ))
+          }
+        </div>
+      </article>
+
+      <aside class="panel block about-aside">
+        <div class="about-mark">
+          <picture>
+            <source srcset="/brand/logo-badge.webp" type="image/webp" />
+            <img
+              src="/brand/logo-badge.png"
+              alt="CyberCrew circular badge mark"
+              width="800"
+              height="800"
+              class="about-logo"
+              decoding="async"
+            />
+          </picture>
+        </div>
+        <p class="caption muted">
+          Official mark from the CyberCrew logo pack — horned emblem, white CYBER, tracked red
+          CREW. Aspect ratio preserved; not recolored or redrawn.
+        </p>
+        <a class="btn" href="/tracks">Start with a track</a>
+        <a class="btn btn-secondary" href="/library">Browse the library</a>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about-grid {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .block {
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .block h2 {
+    margin: 1.5rem 0 0.75rem;
+    font-size: 1.3rem;
+  }
+
+  .block h2:first-child {
+    margin-top: 0;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--cc-text-muted);
+  }
+
+  li + li {
+    margin-top: 0.4rem;
+  }
+
+  .track-links {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .track-links a {
+    display: grid;
+    gap: 0.25rem;
+    text-decoration: none;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--cc-line);
+    color: inherit;
+  }
+
+  .track-links strong {
+    color: var(--cc-paper-bright);
+    font-family: var(--font-display);
+  }
+
+  .track-links span {
+    color: var(--cc-text-muted);
+    font-size: 0.92rem;
+  }
+
+  .about-aside {
+    display: grid;
+    align-content: start;
+    gap: 0.85rem;
+  }
+
+  .about-mark {
+    display: grid;
+    place-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .about-logo {
+    width: min(100%, 13.5rem);
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: contain;
+    border-radius: 50%;
+    box-shadow: var(--shadow-glow);
+  }
+
+  .caption {
+    font-size: 0.85rem;
+    margin: 0 0 0.5rem;
+  }
+
+  @media (min-width: 900px) {
+    .about-grid {
+      grid-template-columns: 1.55fr 0.75fr;
+      align-items: start;
+    }
+  }
+</style>

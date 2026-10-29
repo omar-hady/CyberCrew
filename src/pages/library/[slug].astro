@@ -1,0 +1,124 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+import {
+  difficultyLabel,
+  resourceAction,
+  trackLabel,
+  typeLabel,
+} from "../../lib/resources";
+
+export async function getStaticPaths() {
+  const resources = await getCollection("resources");
+  return resources
+    .filter((r) => r.data.published)
+    .map((resource) => ({
+      params: { slug: resource.id },
+      props: { resource },
+    }));
+}
+
+const { resource } = Astro.props;
+const { Content } = await render(resource);
+const action = resourceAction(resource);
+const { data } = resource;
+---
+
+<BaseLayout title={data.title} description={data.description}>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Resource</p>
+      <div class="tags">
+        <span class="tag tag-accent">{typeLabel[data.type]}</span>
+        <span class="tag">{difficultyLabel[data.difficulty]}</span>
+        <span class="tag">{trackLabel[data.track]}</span>
+        {data.featured && <span class="tag">Featured</span>}
+      </div>
+      <h1>{data.title}</h1>
+      <p class="lede">{data.description}</p>
+      <div class="actions">
+        {
+          action && (
+            <a
+              class="btn"
+              href={action.href}
+              target={action.external ? "_blank" : undefined}
+              rel={action.external ? "noopener noreferrer" : undefined}
+            >
+              {action.label}
+              {action.external ? " ↗" : ""}
+            </a>
+          )
+        }
+        <a class="btn btn-secondary" href={`/library?track=${data.track}`}>
+          More in this track
+        </a>
+        <a class="btn btn-secondary" href="/library">Back to library</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-sm">
+    <div class="container narrow">
+      <article class="panel body">
+        <Content />
+        {
+          data.tags.length > 0 && (
+            <div class="tag-row">
+              {data.tags.map((tag) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          )
+        }
+        <p class="note muted">
+          Published {data.pubDate.toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" })}.
+          External links open destinations outside CyberCrew — verify them before use in workshops.
+        </p>
+      </article>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.35rem;
+  }
+
+  .narrow {
+    width: min(100% - var(--gutter) * 2, 46rem);
+  }
+
+  .body {
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .body :global(p),
+  .body :global(li) {
+    color: var(--cc-text-muted);
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1.5rem;
+  }
+
+  .note {
+    margin: 1.5rem 0 0;
+    font-size: 0.9rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--cc-line);
+  }
+</style>

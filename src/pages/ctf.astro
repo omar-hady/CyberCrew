@@ -1,0 +1,145 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/site";
+
+const ctfUrl = site.ctfUrl.trim();
+const hasCtf = Boolean(ctfUrl);
+---
+
+<BaseLayout
+  title="CTF Arena"
+  description="Introduction to the CyberCrew CTF Arena — the existing external challenge platform."
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Challenge practice</p>
+      <h1>CTF Arena</h1>
+      <p class="lede">
+        CyberCrew’s challenge engine lives on an existing external platform. This page is the
+        branded doorway — not a rebuilt CTF system.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-sm">
+    <div class="container layout">
+      <article class="panel block">
+        <h2>How we use the arena</h2>
+        <p class="muted">
+          CTF practice sharpens category fluency and teamwork. Pair arena time with the
+          <a href="/tracks/ctf-learning">CTF Learning track</a> and publish useful writeups into
+          the <a href="/library">library</a> when you can.
+        </p>
+        <ul>
+          <li>Warm up with category rotations instead of random hopping.</li>
+          <li>Keep notes on blockers — then find a resource that closes the gap.</li>
+          <li>Compete hard, share generously, and respect event rules.</li>
+        </ul>
+
+        {
+          hasCtf ? (
+            <a class="btn" href={ctfUrl} target="_blank" rel="noopener noreferrer">
+              Enter CTF Arena ↗
+            </a>
+          ) : (
+            <div class="notice panel">
+              <strong>CTF platform URL not configured</strong>
+              <p>
+                No CTF URL was found in this repository. Set
+                <code>PUBLIC_CTF_URL</code> in your host environment (or
+                <code>.env</code> locally) to the real arena address, then rebuild. Do not invent
+                a placeholder competition URL.
+              </p>
+              <a class="btn btn-secondary" href="/tracks/ctf-learning">
+                Study the CTF track meanwhile
+              </a>
+            </div>
+          )
+        }
+      </article>
+
+      <aside class="panel block">
+        <h2>Related paths</h2>
+        <div class="links">
+          <a href="/tracks/ctf-learning">CTF Learning track</a>
+          <a href="/library?track=ctf-learning">CTF resources</a>
+          <a href="/community">Community sessions</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .layout {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .block {
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .block h2 {
+    margin: 0 0 0.85rem;
+    font-size: 1.35rem;
+  }
+
+  ul {
+    color: var(--cc-text-muted);
+    margin: 0 0 1.5rem;
+    padding-left: 1.2rem;
+  }
+
+  li + li {
+    margin-top: 0.4rem;
+  }
+
+  .notice {
+    margin-top: 0.5rem;
+    padding: 1rem 1.1rem;
+    border-style: dashed;
+  }
+
+  .notice strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--cc-paper-bright);
+  }
+
+  .notice p {
+    margin: 0 0 1rem;
+    color: var(--cc-text-muted);
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--cc-accent);
+  }
+
+  .links {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .links a {
+    text-decoration: none;
+    color: var(--cc-text);
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--cc-line);
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+
+  .links a:hover {
+    color: var(--cc-accent);
+  }
+
+  @media (min-width: 900px) {
+    .layout {
+      grid-template-columns: 1.6fr 0.8fr;
+      align-items: start;
+    }
+  }
+</style>

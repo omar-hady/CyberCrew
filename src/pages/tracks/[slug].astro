@@ -1,0 +1,226 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ResourceCard from "../../components/ResourceCard.astro";
+import { getCollection, render } from "astro:content";
+import { getResourcesByTrack } from "../../lib/resources";
+
+export async function getStaticPaths() {
+  const tracks = await getCollection("tracks");
+  return tracks.map((track) => ({
+    params: { slug: track.id },
+    props: { track },
+  }));
+}
+
+const { track } = Astro.props;
+const { Content } = await render(track);
+const resources = await getResourcesByTrack(track.id);
+---
+
+<BaseLayout
+  title={track.data.title}
+  description={track.data.short}
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Learning track</p>
+      <h1>{track.data.title}</h1>
+      <p class="lede">{track.data.short}</p>
+      <div class="meta-row">
+        <span class="tag tag-accent">{track.data.level}</span>
+        <a class="btn btn-secondary" href="/library">Filter library</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-sm">
+    <div class="container track-layout">
+      <article class="panel prose-panel">
+        <h2>Introduction</h2>
+        <div class="prose body">
+          <Content />
+        </div>
+
+        <h2>Learning objectives</h2>
+        <ul class="objectives">
+          {track.data.objectives.map((o) => <li>{o}</li>)}
+        </ul>
+
+        <h2>Roadmap</h2>
+        <ol class="roadmap">
+          {
+            track.data.roadmap.map((step, i) => (
+              <li>
+                <span class="num">{String(i + 1).padStart(2, "0")}</span>
+                <div>
+                  <h3>{step.title}</h3>
+                  <p>{step.description}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+
+        {
+          track.data.tools.length > 0 && (
+            <>
+              <h2>Tools & references</h2>
+              <ul class="tools">
+                {track.data.tools.map((t) => (
+                  <li>{t}</li>
+                ))}
+              </ul>
+            </>
+          )
+        }
+      </article>
+
+      <aside class="aside">
+        <div class="panel aside-card">
+          <h2>Next actions</h2>
+          <a class="btn" href={`/library?track=${track.id}`}>Browse related resources</a>
+          <a class="btn btn-secondary" href="/ctf">CTF Arena</a>
+          <a class="btn btn-secondary" href="/tracks">All tracks</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container-wide">
+      <div class="section-head">
+        <h2>Resources in this track</h2>
+        <a href={`/library?track=${track.id}`}>View in library →</a>
+      </div>
+      {
+        resources.length ? (
+          <div class="grid-2">
+            {resources.map((resource) => (
+              <ResourceCard resource={resource} />
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state">
+            <strong>No published resources yet</strong>
+            Add materials for this track through Decap CMS.
+          </div>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 1.25rem;
+  }
+
+  .track-layout {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .prose-panel {
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .prose-panel h2 {
+    margin: 1.75rem 0 0.85rem;
+    font-size: 1.35rem;
+  }
+
+  .prose-panel h2:first-child {
+    margin-top: 0;
+  }
+
+  .body :global(p) {
+    color: var(--cc-text-muted);
+  }
+
+  .objectives,
+  .tools {
+    margin: 0;
+    padding-left: 1.15rem;
+    color: var(--cc-text-muted);
+  }
+
+  .objectives li + li,
+  .tools li + li {
+    margin-top: 0.45rem;
+  }
+
+  .roadmap {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .roadmap li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.85rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--cc-line);
+  }
+
+  .num {
+    font-family: var(--font-mono);
+    color: var(--cc-accent);
+    font-size: 0.8rem;
+  }
+
+  .roadmap h3 {
+    margin: 0 0 0.3rem;
+    font-size: 1.05rem;
+  }
+
+  .roadmap p {
+    margin: 0;
+    color: var(--cc-text-muted);
+    font-size: 0.95rem;
+  }
+
+  .aside-card {
+    padding: 1.25rem;
+    display: grid;
+    gap: 0.75rem;
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+  }
+
+  .aside-card h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.1rem;
+  }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .section-head h2 {
+    margin: 0;
+  }
+
+  .section-head a {
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+
+  @media (min-width: 960px) {
+    .track-layout {
+      grid-template-columns: 1.7fr 0.7fr;
+      align-items: start;
+    }
+  }
+</style>

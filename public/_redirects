@@ -1,0 +1,3 @@
+# Cloudflare Pages redirects (copied into dist/ on build).
+# Decap CMS expects a trailing slash so relative ./config.yml resolves under /admin/.
+/admin /admin/ 301

@@ -1,0 +1,38 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import LibraryApp from "../../components/LibraryApp.astro";
+import { getPublishedResources } from "../../lib/resources";
+
+const resources = await getPublishedResources();
+---
+
+<BaseLayout
+  title="Resource Library"
+  description="Search and filter CyberCrew learning resources by track, type, and difficulty."
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Knowledge base</p>
+      <h1>Resource library</h1>
+      <p class="lede">
+        Discover PDFs, documentation, labs, cheatsheets, session materials, and external
+        references. New published items appear after the site rebuilds from CMS updates.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-sm">
+    <div class="container-wide">
+      {
+        resources.length ? (
+          <LibraryApp resources={resources} />
+        ) : (
+          <div class="empty-state">
+            <strong>Library is empty</strong>
+            Publish the first resource through Decap CMS at /admin/.
+          </div>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,323 @@
+---
+import { site } from "../data/site";
+
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+function isActive(href: string) {
+  if (href === "/") return path === "/";
+  return path === href || path.startsWith(`${href}/`);
+}
+---
+
+<header class="site-header">
+  <div class="container-wide header-inner">
+    <a class="brand" href="/" aria-label="CyberCrew home" data-brand>
+      <picture class="brand-picture">
+        <source srcset="/brand/logo-emblem.webp" type="image/webp" />
+        <img
+          src="/brand/logo-emblem.png"
+          alt=""
+          width="512"
+          height="479"
+          class="brand-mark"
+          decoding="async"
+          data-brand-mark
+        />
+      </picture>
+      <span class="wordmark brand-wordmark" aria-hidden="true">
+        <span class="wordmark-cyber">Cyber</span>
+        <span class="wordmark-crew">Crew</span>
+      </span>
+      <span class="brand-fallback wordmark" data-brand-fallback hidden>
+        <span class="wordmark-cyber">Cyber</span>
+        <span class="wordmark-crew">Crew</span>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Primary">
+      {
+        site.nav.map((item) => (
+          <a
+            href={item.href}
+            class:list={["nav-link", { active: isActive(item.href) }]}
+            aria-current={isActive(item.href) ? "page" : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="header-actions">
+      <a class="btn btn-secondary header-cta" href="/library">Library</a>
+      <button
+        type="button"
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        data-menu-toggle
+      >
+        <span class="sr-only">Menu</span>
+        <span class="menu-bars" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-nav" class="mobile-nav" hidden data-mobile-nav>
+    <nav aria-label="Mobile">
+      {
+        site.nav.map((item) => (
+          <a
+            href={item.href}
+            class:list={["mobile-link", { active: isActive(item.href) }]}
+            aria-current={isActive(item.href) ? "page" : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a class="btn" href="/library">Browse library</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--header-h);
+    backdrop-filter: blur(16px);
+    background: color-mix(in srgb, var(--cc-ink) 88%, transparent);
+    border-bottom: 1px solid var(--cc-line);
+    box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--cc-accent) 22%, transparent);
+  }
+
+  .header-inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    text-decoration: none;
+    color: inherit;
+    flex-shrink: 0;
+  }
+
+  .brand-picture {
+    display: block;
+    line-height: 0;
+  }
+
+  .brand-mark {
+    width: auto;
+    height: clamp(2.15rem, 5.5vw, 2.45rem);
+    aspect-ratio: 512 / 479;
+    object-fit: contain;
+  }
+
+  .brand-wordmark .wordmark-cyber {
+    font-size: 0.95rem;
+  }
+
+  .brand-wordmark .wordmark-crew {
+    font-size: 0.58rem;
+  }
+
+  .brand-fallback {
+    display: none;
+  }
+
+  .brand.is-fallback .brand-picture,
+  .brand.is-fallback .brand-wordmark {
+    display: none;
+  }
+
+  .brand.is-fallback .brand-fallback {
+    display: flex;
+  }
+
+  .desktop-nav {
+    display: none;
+    align-items: center;
+    gap: 0.15rem;
+    margin-inline: auto;
+  }
+
+  .nav-link {
+    padding: 0.5rem 0.75rem;
+    color: var(--cc-text-muted);
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 500;
+    position: relative;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    color: var(--cc-paper-bright);
+  }
+
+  .nav-link.active::after {
+    content: "";
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.15rem;
+    height: 2px;
+    background: var(--cc-accent);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+  }
+
+  .header-cta {
+    display: none;
+    min-height: 2.4rem;
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .menu-toggle {
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--cc-line-strong);
+    background: var(--cc-surface);
+    color: var(--cc-paper);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  }
+
+  .menu-bars,
+  .menu-bars::before,
+  .menu-bars::after {
+    display: block;
+    width: 1.1rem;
+    height: 2px;
+    background: currentColor;
+    position: relative;
+    transition: transform var(--duration) var(--ease-out);
+  }
+
+  .menu-bars::before,
+  .menu-bars::after {
+    content: "";
+    position: absolute;
+    left: 0;
+  }
+
+  .menu-bars::before {
+    top: -6px;
+  }
+
+  .menu-bars::after {
+    top: 6px;
+  }
+
+  .menu-toggle[aria-expanded="true"] .menu-bars {
+    background: transparent;
+  }
+
+  .menu-toggle[aria-expanded="true"] .menu-bars::before {
+    top: 0;
+    transform: rotate(45deg);
+  }
+
+  .menu-toggle[aria-expanded="true"] .menu-bars::after {
+    top: 0;
+    transform: rotate(-45deg);
+  }
+
+  .mobile-nav {
+    position: absolute;
+    inset: var(--header-h) 0 auto;
+    background: color-mix(in srgb, var(--cc-ink) 94%, var(--cc-ember));
+    border-bottom: 1px solid var(--cc-line);
+    padding: 1rem var(--gutter) 1.5rem;
+  }
+
+  .mobile-nav nav {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .mobile-link {
+    padding: 0.85rem 0.5rem;
+    color: var(--cc-text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--cc-line);
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+
+  .mobile-link.active {
+    color: var(--cc-accent);
+  }
+
+  .mobile-nav .btn {
+    margin-top: 0.75rem;
+  }
+
+  @media (min-width: 900px) {
+    .desktop-nav {
+      display: flex;
+    }
+
+    .header-cta {
+      display: inline-flex;
+    }
+
+    .menu-toggle,
+    .mobile-nav {
+      display: none !important;
+    }
+
+    .header-actions {
+      margin-left: 0;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector("[data-menu-toggle]");
+  const panel = document.querySelector("[data-mobile-nav]");
+
+  if (toggle instanceof HTMLButtonElement && panel instanceof HTMLElement) {
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute("aria-expanded", String(open));
+      panel.hidden = !open;
+    };
+
+    toggle.addEventListener("click", () => {
+      const open = toggle.getAttribute("aria-expanded") !== "true";
+      setOpen(open);
+    });
+
+    panel.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => setOpen(false));
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") setOpen(false);
+    });
+  }
+
+  const brand = document.querySelector("[data-brand]");
+  const brandMark = document.querySelector("[data-brand-mark]");
+  if (brand instanceof HTMLElement && brandMark instanceof HTMLImageElement) {
+    const showFallback = () => brand.classList.add("is-fallback");
+    brandMark.addEventListener("error", showFallback);
+    if (brandMark.complete && brandMark.naturalWidth === 0) showFallback();
+  }
+</script>

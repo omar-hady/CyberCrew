@@ -1,0 +1,33 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Not found" description="The page you requested could not be found.">
+  <section class="page-hero">
+    <div class="container narrow">
+      <p class="eyebrow">404</p>
+      <h1>Signal lost</h1>
+      <p class="lede">
+        That path is not in the CyberCrew map. Head back to a known sector.
+      </p>
+      <div class="actions">
+        <a class="btn" href="/">Home</a>
+        <a class="btn btn-secondary" href="/library">Library</a>
+        <a class="btn btn-secondary" href="/tracks">Tracks</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .narrow {
+    max-width: 36rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+</style>

@@ -1,0 +1,103 @@
+---
+interface Props {
+  slug: string;
+  title: string;
+  short: string;
+  level: string;
+  index?: number;
+}
+
+const { slug, title, short, level, index = 0 } = Astro.props;
+const num = String(index + 1).padStart(2, "0");
+---
+
+<a class="track-card panel" href={`/tracks/${slug}`}>
+  <div class="top">
+    <span class="idx" aria-hidden="true">
+      <span class="idx-ring"></span>
+      {num}
+    </span>
+    <span class="level">{level}</span>
+  </div>
+  <h3>{title}</h3>
+  <p>{short}</p>
+  <span class="cta">Enter track →</span>
+</a>
+
+<style>
+  .track-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1.4rem 1.35rem 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    min-height: 14rem;
+    transition:
+      border-color var(--duration) var(--ease-out),
+      background var(--duration) var(--ease-out),
+      transform var(--duration) var(--ease-out),
+      box-shadow var(--duration) var(--ease-out);
+  }
+
+  .track-card:hover {
+    border-color: color-mix(in srgb, var(--cc-accent) 45%, var(--cc-line));
+    background: var(--cc-surface-2);
+    transform: translateY(-3px);
+    color: inherit;
+    box-shadow: var(--shadow-glow);
+  }
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .idx {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--cc-accent);
+  }
+
+  .idx-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--cc-accent-ring) 55%, transparent);
+    pointer-events: none;
+  }
+
+  .level {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--cc-text-faint);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1.35rem;
+  }
+
+  p {
+    margin: 0;
+    color: var(--cc-text-muted);
+    flex: 1;
+    font-size: 0.95rem;
+  }
+
+  .cta {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--cc-accent);
+  }
+</style>

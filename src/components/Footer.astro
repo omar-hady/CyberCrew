@@ -1,0 +1,166 @@
+---
+import { site } from "../data/site";
+---
+
+<footer class="site-footer">
+  <div class="container-wide footer-grid">
+    <div class="footer-brand">
+      <a class="footer-lockup" href="/" aria-label="CyberCrew home">
+        <picture>
+          <source srcset="/brand/logo-badge.webp" type="image/webp" />
+          <img
+            src="/brand/logo-badge.png"
+            alt=""
+            width="800"
+            height="800"
+            class="footer-logo"
+            decoding="async"
+          />
+        </picture>
+        <span class="wordmark">
+          <span class="wordmark-cyber footer-cyber">Cyber</span>
+          <span class="wordmark-crew footer-crew">Crew</span>
+        </span>
+      </a>
+      <p class="footer-tagline">{site.tagline}</p>
+    </div>
+
+    <div>
+      <h2 class="footer-heading">Explore</h2>
+      <ul class="footer-links">
+        {
+          site.nav.map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="footer-heading">Learning tracks</h2>
+      <ul class="footer-links">
+        {
+          site.tracks.map((t) => (
+            <li>
+              <a href={`/tracks/${t.slug}`}>{t.title}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="footer-heading">Resources</h2>
+      <ul class="footer-links">
+        <li><a href="/library">Resource library</a></li>
+        <li><a href="/community">Community updates</a></li>
+        <li><a href="/admin/" rel="nofollow">Content admin</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-wide footer-bottom">
+    <p>© {new Date().getFullYear()} CyberCrew. Built for practical cybersecurity learning.</p>
+    <p class="muted">
+      Public static site — uploaded files committed to the repository are public.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-8);
+    border-top: 1px solid var(--cc-line);
+    background:
+      radial-gradient(ellipse 42% 70% at 0% 0%, rgba(238, 34, 39, 0.1), transparent 58%),
+      var(--cc-ink-elevated);
+    padding-block: var(--space-7) var(--space-6);
+  }
+
+  .footer-grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .footer-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    text-decoration: none;
+    color: inherit;
+    margin-bottom: var(--space-3);
+  }
+
+  .footer-logo {
+    width: 4.25rem;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: contain;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--cc-accent) 35%, transparent);
+  }
+
+  .footer-cyber {
+    font-size: 1.15rem;
+  }
+
+  .footer-crew {
+    font-size: 0.68rem;
+  }
+
+  .footer-tagline {
+    color: var(--cc-text-muted);
+    max-width: 22rem;
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  .footer-heading {
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cc-accent);
+    margin: 0 0 var(--space-3);
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+
+  .footer-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .footer-links a {
+    color: var(--cc-text-muted);
+    text-decoration: none;
+  }
+
+  .footer-links a:hover {
+    color: var(--cc-paper-bright);
+  }
+
+  .footer-bottom {
+    margin-top: var(--space-7);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--cc-line);
+    display: grid;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    color: var(--cc-text-faint);
+  }
+
+  .footer-bottom p {
+    margin: 0;
+  }
+
+  @media (min-width: 768px) {
+    .footer-grid {
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    }
+  }
+</style>
