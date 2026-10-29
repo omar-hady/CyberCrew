@@ -1,26 +1,40 @@
 # Decap CMS — CyberCrew
 #
-# Production auth: Decap Turbo (turbo-github).
-# Create a Turbo site for this repo, then replace the placeholder below with the
-# Site ID UUID from the Turbo dashboard Overview tab. Do not invent this value.
+# Local development (active below): git-gateway + local_backend + `npm run cms`
+# alongside `npm run dev` (not preview). Docs: https://decapcms.org/docs/decap-proxy/
+#
+# Production (Decap Turbo): after you create a Turbo site, switch the backend block
+# to the commented turbo-github example and paste the real Site ID UUID from the
+# Turbo dashboard Overview tab. Do not invent that value.
 # Docs: https://decapcms.org/docs/turbo-connecting-a-site/
 #
-# Local development: keep local_backend true and run `npm run cms` alongside
-# `npm run dev`. The local proxy only applies on localhost; production uses Turbo.
-# Add http://localhost:4321 (or your Astro origin) to the Turbo site's Admin URLs
-# if you also want Turbo login while developing against the remote repo.
+# The local proxy only applies on localhost/127.0.0.1; it does not authenticate
+# and does not use email/password.
 
-local_backend: true
+# Local: when the admin UI is opened on localhost/127.0.0.1 and `npm run cms`
+# is running, Decap talks to this proxy (no auth). Production ignores this block
+# unless you are on those hosts.
+local_backend:
+  url: http://localhost:8081/api/v1
+  allowed_hosts:
+    - localhost
+    - 127.0.0.1
 
+# Active local / interim backend (works with decap-server; no Turbo Site ID needed).
 backend:
-  name: turbo-github
-  # REPLACE_WITH_DECAP_TURBO_SITE_ID — paste the UUID from Decap Turbo → Site → Overview.
-  # /admin production login will not work until this is set to the real Site ID.
-  # Do not invent a UUID; create the Turbo site after the GitHub repo exists.
-  turbo_site_id: REPLACE_WITH_DECAP_TURBO_SITE_ID
+  name: git-gateway
   branch: main
 
+# --- Production backend (enable after Turbo Site ID exists) ---
+# Replace the backend block above with:
+# backend:
+#   name: turbo-github
+#   turbo_site_id: PASTE_REAL_UUID_FROM_TURBO_OVERVIEW
+#   branch: main
+# Keep the local_backend block above so localhost still uses decap-server when developing.
+
 # Media uploaded here is committed to the repo and is PUBLIC on static hosts.
+# Paths are relative to the repository root (not the collection folder).
 media_folder: public/uploads/resources
 public_folder: /uploads/resources
 
@@ -28,7 +42,7 @@ public_folder: /uploads/resources
 # site_url: https://your-domain.example
 # display_url: https://your-domain.example
 
-logo_url: /brand/logo-badge.webp
+logo_url: /brand/logo-horizontal-on-light.webp
 
 # Simple publishing: editors push straight to the content branch.
 publish_mode: simple
@@ -78,18 +92,26 @@ collections:
         name: file
         widget: file
         required: false
-        media_folder: public/uploads/resources
+        # Leading slash = repo-root absolute. Without it, Decap treats the path as
+        # relative to the collection folder and writes under src/content/resources/.
+        media_folder: /public/uploads/resources
         public_folder: /uploads/resources
         hint: Uploaded files in a public repo are publicly downloadable.
       - label: Thumbnail
         name: thumbnail
         widget: image
         required: false
-        media_folder: public/uploads/resources
+        media_folder: /public/uploads/resources
         public_folder: /uploads/resources
       - { label: Featured, name: featured, widget: boolean, default: false }
       - { label: Published, name: published, widget: boolean, default: true }
-      - { label: Publication date, name: pubDate, widget: datetime }
+      # Day.js tokens; default now so Astro's required pubDate is never empty.
+      - label: Publication date
+        name: pubDate
+        widget: datetime
+        default: "{{now}}"
+        format: YYYY-MM-DDTHH:mm:ss.SSSZ
+        picker_utc: true
       - { label: Order / priority, name: order, widget: number, default: 100, value_type: int }
       - { label: Body, name: body, widget: markdown, required: false }
 
@@ -104,7 +126,12 @@ collections:
     fields:
       - { label: Title, name: title, widget: string }
       - { label: Summary, name: summary, widget: text }
-      - { label: Date, name: date, widget: datetime }
+      - label: Date
+        name: date
+        widget: datetime
+        default: "{{now}}"
+        format: YYYY-MM-DDTHH:mm:ss.SSSZ
+        picker_utc: true
       - label: Kind
         name: kind
         widget: select

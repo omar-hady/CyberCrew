@@ -13,21 +13,21 @@ function isActive(href: string) {
   <div class="container-wide header-inner">
     <a class="brand" href="/" aria-label="CyberCrew home" data-brand>
       <picture class="brand-picture">
-        <source srcset="/brand/logo-emblem.webp" type="image/webp" />
+        <source
+          srcset="/brand/logo-horizontal-sm.webp 480w, /brand/logo-horizontal.webp 960w"
+          sizes="(max-width: 640px) 9.5rem, 11.5rem"
+          type="image/webp"
+        />
         <img
-          src="/brand/logo-emblem.png"
+          src="/brand/logo-horizontal.png"
           alt=""
-          width="512"
-          height="479"
+          width="960"
+          height="238"
           class="brand-mark"
           decoding="async"
           data-brand-mark
         />
       </picture>
-      <span class="wordmark brand-wordmark" aria-hidden="true">
-        <span class="wordmark-cyber">Cyber</span>
-        <span class="wordmark-crew">Crew</span>
-      </span>
       <span class="brand-fallback wordmark" data-brand-fallback hidden>
         <span class="wordmark-cyber">Cyber</span>
         <span class="wordmark-crew">Crew</span>
@@ -116,26 +116,17 @@ function isActive(href: string) {
   }
 
   .brand-mark {
-    width: auto;
-    height: clamp(2.15rem, 5.5vw, 2.45rem);
-    aspect-ratio: 512 / 479;
+    width: clamp(9.25rem, 28vw, 11.5rem);
+    height: auto;
+    aspect-ratio: 960 / 238;
     object-fit: contain;
-  }
-
-  .brand-wordmark .wordmark-cyber {
-    font-size: 0.95rem;
-  }
-
-  .brand-wordmark .wordmark-crew {
-    font-size: 0.58rem;
   }
 
   .brand-fallback {
     display: none;
   }
 
-  .brand.is-fallback .brand-picture,
-  .brand.is-fallback .brand-wordmark {
+  .brand.is-fallback .brand-picture {
     display: none;
   }
 

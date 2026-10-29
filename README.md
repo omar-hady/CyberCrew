@@ -6,9 +6,16 @@ Stack: **Astro** (static) + **Decap CMS** for resource/announcement publishing. 
 
 ## Brand
 
-The CyberCrew logo pack in `/Logo` is the identity source of truth: horned red emblem, white `CYBER` wordmark, tracked red `CREW`, on near-black (`#020202`). Brand accent `#ee2227` / ring `#ed2529` and ember `#2e1010` come from the SVG fills; chamfered UI framing and circular badge treatments echo the STICKER / circ marks. Web-optimized copies live in `/public/brand`.
+The CyberCrew logo pack in `/LOGO` is the identity source of truth (`ICON/`, `HORIZONTAL/`, `VERTICAL/`): horned red emblem, white `CYBER` wordmark, tracked red `CREW`, on near-black (`#020202`). Brand accent `#ee2227` / ring `#ed2529` and ember `#2e1010` come from the SVG fills; chamfered UI framing and circular badge treatments echo the STICKER / circ marks. Web-optimized copies live in `/public/brand`.
 
-Prefer raster marks in the UI (`logo-hero.webp` for atmospheric badge, `logo-emblem.webp` for header/favicon, `logo-badge.webp` for circular lockups, `logo-full.webp` for the full transparent mark) so desktop-only fonts embedded in source Illustrator SVGs are not required in browsers. Use `logo-on-light.*` on light surfaces and `logo-mono-white.*` when a monochrome mark is needed.
+Prefer raster marks in the UI so desktop-only fonts embedded in source Illustrator SVGs are not required in browsers:
+- `logo-horizontal.webp` — navbar / CMS / Organization schema (dark surfaces)
+- `logo-horizontal-on-light.webp` — light surfaces
+- `logo-hero.webp` — atmospheric circular hero badge
+- `logo-badge.webp` — circular sticker lockups (footer, About)
+- `logo-emblem.webp` / `logo-icon.webp` — emblem-only mark / favicon source
+- `logo-full.webp` — full vertical transparent mark
+- `logo-on-light.*` / `logo-mono-white.*` — light-surface and monochrome variants
 
 ## Quick start
 
@@ -32,10 +39,11 @@ Copy `.env.example` to `.env`:
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Local development server |
+| `npm run dev` | Local development server (required for live CMS → site updates) |
 | `npm run build` | Production build → `dist/` |
-| `npm run preview` | Preview the production build |
+| `npm run preview` | Preview the production build (frozen `dist/` — does **not** hot-reload CMS file writes) |
 | `npm run cms` | Local Decap backend proxy (`decap-server`, pinned in devDependencies) |
+| `npm run cms:check` | Ping the local CMS proxy (`info` action) |
 
 ## Content model
 
@@ -49,47 +57,52 @@ Published resources power `/library` and `/library/[slug]`. Featured items surfa
 
 ### Publishing workflow (Decap CMS)
 
-1. Open `/admin/` on a deployed site (trailing slash required so Decap loads `config.yml`; or locally with the CMS proxy).
-2. Authenticate via Decap Turbo (production) or the local proxy (development).
-3. Create/edit a resource → commit to the content branch.
-4. Your host rebuilds the static site; new pages appear after the deploy finishes.
+**Local:** `npm run dev` + `npm run cms` → open `/admin/` → save → refresh the site. Astro’s content loader watches `src/content/**` and picks up new/changed markdown without a deploy. Do not use `npm run preview` for this check — it serves a frozen `dist/` build.
 
-Ordinary resource updates should not require hand-editing React/Astro components once CMS auth + Git are connected.
+**Production:** Open `/admin/` on the deployed site (trailing slash) → authenticate via Decap Turbo → create/edit → Decap commits to the content branch → your host rebuilds → pages update after the deploy finishes.
+
+Ordinary resource updates should not require hand-editing Astro components once CMS auth + Git are connected.
 
 ## Decap CMS authentication
 
 The admin UI at `/admin/` is **not** authenticated by itself.
 
+### Local development (active now)
+
+`config.yml` uses `backend.name: git-gateway` with `local_backend` so `/admin/` works without a Turbo Site ID ([Decap proxy docs](https://decapcms.org/docs/decap-proxy/)):
+
+1. From the repo root: `npm run dev` (Astro must be in **dev** mode, not `preview`)
+2. In a second terminal, from the same root: `npm run cms`
+3. Open `http://localhost:4321/admin/` (trailing slash) and click **Login** (no email/password — the local proxy has no auth)
+4. Create/edit a resource or announcement → Decap writes `src/content/**/*.md` (and media under `public/uploads/resources/`)
+5. Refresh `/library`, `/library/<slug>`, `/community`, or the home page — Astro’s content glob loader picks up the new/changed files without a production deploy
+
+`npm run preview` and a Cloudflare/Pages deploy only see CMS changes after a fresh `npm run build` (or host rebuild). For local publishing checks, always use `dev` + `cms`.
+
+Optional: `npm run cms:check` confirms the proxy is listening on port 8081.
+
+The local proxy writes to files on disk. It does not apply on the production host.
+
 ### Production — Decap Turbo (`turbo-github`)
 
-This project is prepared for [Decap Turbo](https://decapcms.org/docs/turbo-getting-started/) with the GitHub backend:
+After the GitHub repo exists, switch the `backend` block in `public/admin/config.yml` to the commented `turbo-github` example (keep the existing `local_backend` block so localhost still uses `decap-server`):
 
 1. Create a GitHub repository and push this project (`main` branch).
-2. Sign up at Decap Turbo and connect GitHub (install the Turbo GitHub App on the account/org that owns the repo).
+2. Sign up at [Decap Turbo](https://decapcms.org/docs/turbo-getting-started/) and connect GitHub (install the Turbo GitHub App on the account/org that owns the repo).
 3. Create a Turbo **site** with:
    - Repo: your `owner/name`
    - Branch: `main`
    - Config path: `public/admin/config.yml`
    - Admin interface URL(s): your production origin (and optionally `http://localhost:4321` for local Turbo login)
-4. Copy the **Site ID** (UUID) from the site Overview tab into `public/admin/config.yml` as `turbo_site_id` (replace `REPLACE_WITH_DECAP_TURBO_SITE_ID`). **Do not invent this value.**
+4. Paste the **Site ID** (UUID) from the site Overview tab as `turbo_site_id`. **Do not invent this value.**
 5. Redeploy so `/admin/` serves the updated config.
-6. Invite editors from the Turbo dashboard.
+6. Invite editors from the Turbo dashboard (GitHub OAuth — not email/password in this repo).
 
-Requires Decap CMS **3.17.0+** (loaded from the CDN script in `public/admin/index.html`).
+Requires Decap CMS **3.17.0+** (loaded from the CDN script in `src/pages/admin.html`).
 
 Production `/admin` login is **not** claimed working until the real Site ID is set and login is tested on a live deploy.
 
-### Local development
-
-`local_backend: true` remains enabled for localhost editing:
-
-1. `npm run dev`
-2. In a second terminal: `npm run cms`
-3. Open `http://localhost:4321/admin/`
-
-The local proxy writes to files on disk. It does not apply on the production host.
-
-**Never commit credentials, tokens, or private keys.** Decap Turbo does not require storing OAuth client secrets in this repository.
+**Never commit credentials, tokens, or private keys.** Decap Turbo does not require storing OAuth client secrets in this repository. Local `decap-server` has no authentication.
 
 ## Storage limits (important)
 
@@ -154,7 +167,7 @@ Semantic landmarks, skip link, visible focus rings, keyboard mobile nav (Escape,
 2. Connect Cloudflare Pages to that repo; confirm build uses `npm run build` → `dist` (Node 22).
 3. Set `PUBLIC_SITE_URL` to the real domain (then rebuild) — enables canonical URLs, sitemap, and the Sitemap line in `/robots.txt`.
 4. Set `PUBLIC_CTF_URL` when the arena URL is known.
-5. Configure Decap Turbo and replace `REPLACE_WITH_DECAP_TURBO_SITE_ID` in `public/admin/config.yml`.
+5. Configure Decap Turbo, switch `backend` to `turbo-github`, and paste the real Site ID UUID into `public/admin/config.yml` (do not invent it).
 6. Optionally set `site_url` / `display_url` in `public/admin/config.yml` to the production origin.
 7. Test `/admin/` login on the live site after Turbo Site ID is set.
 8. Add real community contact/social links in `src/data/site.ts` when available (empty values stay hidden).

@@ -18,18 +18,28 @@ const track = z.enum([
   "general",
 ]);
 
+/** Decap often serializes cleared optional fields as null — coerce to undefined. */
+const optionalString = z
+  .union([z.string(), z.null()])
+  .optional()
+  .transform((v) => v ?? undefined);
+
 const resources = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/resources" }),
+  // Flat files only — matches Decap `folder` + `slug: "{{slug}}"`.
+  loader: glob({ pattern: "*.{md,mdx}", base: "./src/content/resources" }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
     track: track,
     difficulty: difficulty,
     type: resourceType,
-    tags: z.array(z.string()).default([]),
-    url: z.string().optional(),
-    file: z.string().optional(),
-    thumbnail: z.string().optional(),
+    tags: z
+      .union([z.array(z.string()), z.null()])
+      .optional()
+      .transform((v) => v ?? []),
+    url: optionalString,
+    file: optionalString,
+    thumbnail: optionalString,
     featured: z.boolean().default(false),
     published: z.boolean().default(true),
     pubDate: z.coerce.date(),
@@ -38,7 +48,7 @@ const resources = defineCollection({
 });
 
 const tracks = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/tracks" }),
+  loader: glob({ pattern: "*.{md,mdx}", base: "./src/content/tracks" }),
   schema: z.object({
     title: z.string(),
     short: z.string(),
@@ -51,13 +61,16 @@ const tracks = defineCollection({
         description: z.string(),
       }),
     ),
-    tools: z.array(z.string()).default([]),
+    tools: z
+      .union([z.array(z.string()), z.null()])
+      .optional()
+      .transform((v) => v ?? []),
   }),
 });
 
 const announcements = defineCollection({
   loader: glob({
-    pattern: "**/*.{md,mdx}",
+    pattern: "*.{md,mdx}",
     base: "./src/content/announcements",
   }),
   schema: z.object({
@@ -66,7 +79,7 @@ const announcements = defineCollection({
     date: z.coerce.date(),
     kind: z.enum(["announcement", "workshop", "session", "contribution"]),
     published: z.boolean().default(true),
-    link: z.string().optional(),
+    link: optionalString,
   }),
 });
 

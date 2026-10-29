@@ -4,8 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <!-- Ensures ./config.yml resolves when the page is opened as /admin (no trailing slash). -->
+    <!-- Trailing-slash base so relative assets resolve under /admin/. -->
     <base href="/admin/" />
+    <!-- Explicit config URL (config.yml lives in public/admin/). -->
+    <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url" />
     <title>CyberCrew Content Admin</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="theme-color" content="#020202" />
@@ -42,12 +44,19 @@
       </div>
     </noscript>
     <!--
-      Production auth: Decap Turbo (turbo-github). Set turbo_site_id in config.yml
-      to the real Site ID UUID from the Turbo dashboard — do not invent it.
-      Local editing: run `npm run cms` with `npm run dev` (local_backend: true).
-      Docs: https://decapcms.org/docs/turbo-getting-started/
+      Local workflow (required for CMS edits to appear on the site):
+        1. Terminal A: npm run dev
+        2. Terminal B: npm run cms
+        3. Open http://localhost:4321/admin/ (trailing slash) and Login
+      Use `astro dev`, not `astro preview` — preview serves a frozen dist/ build
+      and will not pick up markdown written by the local CMS proxy.
+      Production: switch config.yml backend to turbo-github and set a real
+      turbo_site_id from the Turbo dashboard — do not invent it.
+      Docs: https://decapcms.org/docs/decap-proxy/
+            https://decapcms.org/docs/turbo-getting-started/
+      Auth: local proxy has no email/password. Production Turbo uses GitHub OAuth.
     -->
-    <!-- Pin Decap CMS 3.17+ (required for turbo-github). -->
+    <!-- Pin Decap CMS 3.17+ (required when enabling turbo-github). -->
     <script src="https://cdn.jsdelivr.net/npm/decap-cms@3.17.3/dist/decap-cms.js"></script>
   </body>
 </html>

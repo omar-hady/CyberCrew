@@ -4,6 +4,7 @@ import { getCollection, render } from "astro:content";
 import {
   difficultyLabel,
   resourceAction,
+  resourceSlug,
   trackLabel,
   typeLabel,
 } from "../../lib/resources";
@@ -12,10 +13,15 @@ export async function getStaticPaths() {
   const resources = await getCollection("resources");
   return resources
     .filter((r) => r.data.published)
-    .map((resource) => ({
-      params: { slug: resource.id },
-      props: { resource },
-    }));
+    .map((resource) => {
+      const slug = resourceSlug(resource);
+      if (!slug) return null;
+      return {
+        params: { slug },
+        props: { resource },
+      };
+    })
+    .filter((path): path is NonNullable<typeof path> => path !== null);
 }
 
 const { resource } = Astro.props;

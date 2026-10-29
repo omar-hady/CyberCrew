@@ -28,10 +28,6 @@ const hasEmail = Boolean(site.email.trim());
             decoding="async"
           />
         </picture>
-        <span class="wordmark">
-          <span class="wordmark-cyber footer-cyber">Cyber</span>
-          <span class="wordmark-crew footer-crew">Crew</span>
-        </span>
       </a>
       <p class="footer-tagline">{site.tagline}</p>
       {
@@ -123,20 +119,12 @@ const hasEmail = Boolean(site.email.trim());
   }
 
   .footer-logo {
-    width: 4.25rem;
+    width: clamp(4.5rem, 14vw, 5.5rem);
     height: auto;
     aspect-ratio: 1;
     object-fit: contain;
     border-radius: 50%;
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--cc-accent) 35%, transparent);
-  }
-
-  .footer-cyber {
-    font-size: 1.15rem;
-  }
-
-  .footer-crew {
-    font-size: 0.68rem;
   }
 
   .footer-tagline {

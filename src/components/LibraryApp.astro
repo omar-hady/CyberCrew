@@ -3,6 +3,8 @@ import type { Resource } from "../lib/resources";
 import ResourceCard from "./ResourceCard.astro";
 import {
   difficultyLabel,
+  resourceHref,
+  resourceSlug,
   trackLabel,
   typeLabel,
 } from "../lib/resources";
@@ -13,20 +15,26 @@ interface Props {
 
 const { resources } = Astro.props;
 
-const payload = resources.map((r) => ({
-  id: r.id,
-  href: `/library/${r.id}`,
-  title: r.data.title,
-  description: r.data.description,
-  track: r.data.track,
-  difficulty: r.data.difficulty,
-  type: r.data.type,
-  tags: r.data.tags,
-  featured: r.data.featured,
-  thumbnail: r.data.thumbnail ?? "",
-  pubDate: r.data.pubDate.toISOString(),
-  order: r.data.order,
-}));
+const payload = resources
+  .map((r) => {
+    const id = resourceSlug(r);
+    if (!id) return null;
+    return {
+      id,
+      href: resourceHref(r),
+      title: r.data.title,
+      description: r.data.description,
+      track: r.data.track,
+      difficulty: r.data.difficulty,
+      type: r.data.type,
+      tags: r.data.tags,
+      featured: r.data.featured,
+      thumbnail: r.data.thumbnail ?? "",
+      pubDate: r.data.pubDate.toISOString(),
+      order: r.data.order,
+    };
+  })
+  .filter((item): item is NonNullable<typeof item> => item !== null);
 ---
 
 <div class="library" data-library>

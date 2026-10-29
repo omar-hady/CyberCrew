@@ -11,7 +11,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "cms": "decap-server"
+    "cms": "decap-server",
+    "cms:check": "node --input-type=module -e \"const r=await fetch('http://127.0.0.1:8081/api/v1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'info'})}); if(!r.ok) throw new Error('cms proxy not reachable'); console.log(await r.json());\""
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
@@ -21,6 +22,6 @@
     "astro": "^7.4.3"
   },
   "devDependencies": {
-    "decap-server": "3.2.0"
+    "decap-server": "^3.11.6"
   }
 }
