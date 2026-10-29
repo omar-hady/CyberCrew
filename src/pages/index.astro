@@ -3,10 +3,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Hero from "../components/home/Hero.astro";
 import TrackCard from "../components/TrackCard.astro";
 import ResourceCard from "../components/ResourceCard.astro";
-import { site } from "../data/site";
 import { getFeaturedResources } from "../lib/resources";
+import { getTracks } from "../lib/tracks";
 import { getCollection } from "astro:content";
 
+const tracks = await getTracks();
 const featured = await getFeaturedResources(4);
 const announcements = (await getCollection("announcements"))
   .filter((a) => a.data.published)
@@ -81,13 +82,13 @@ const journey = [
       </div>
       <div class="grid-4">
         {
-          site.tracks.map((t, i) => (
+          tracks.map((t, i) => (
             <div class="reveal" style={`transition-delay:${i * 60}ms`}>
               <TrackCard
-                slug={t.slug}
-                title={t.title}
-                short={t.short}
-                level={t.level}
+                slug={t.id}
+                title={t.data.title}
+                short={t.data.short}
+                level={t.data.level}
                 index={i}
               />
             </div>
@@ -157,8 +158,8 @@ const journey = [
         <p class="eyebrow">Community</p>
         <h2 id="community-title">Sessions, workshops, and updates</h2>
         <p class="muted">
-          Announcements below use real content files in this project. Placeholder entries are
-          labeled as such until organizers confirm schedules.
+          Workshops, practice sessions, and library updates land here first. Confirm dates in each
+          post before planning attendance.
         </p>
         <a class="btn" href="/community">Community hub</a>
       </div>

@@ -35,7 +35,7 @@ Copy `.env.example` to `.env`:
 | `npm run dev` | Local development server |
 | `npm run build` | Production build → `dist/` |
 | `npm run preview` | Preview the production build |
-| `npm run cms` | Local Decap backend proxy (`decap-server`) for editing content on disk |
+| `npm run cms` | Local Decap backend proxy (`decap-server`, pinned in devDependencies) |
 
 ## Content model
 
@@ -135,23 +135,26 @@ public/           Static assets, Decap admin, uploads, Cloudflare _headers/_redi
 src/content/      Markdown collections (CMS-managed)
 src/components/   UI building blocks
 src/layouts/      Base layout + SEO
-src/pages/        Routes
+src/pages/        Routes (includes dynamic /robots.txt)
 src/styles/       Design tokens + global CSS
-src/data/site.ts  Nav, tracks metadata, env-backed URLs
+src/data/site.ts  Nav, social/email stubs, env-backed URLs
+src/lib/          Resource and track helpers
 Logo/             Original brand package (source of truth)
 ```
 
+Track listings (home, `/tracks`, about, footer) load from `src/content/tracks/` so CMS edits stay in sync with detail pages.
+
 ## Accessibility & motion
 
-Semantic landmarks, skip link, visible focus rings, keyboard mobile nav, and `prefers-reduced-motion` support are included.
+Semantic landmarks, skip link, visible focus rings, keyboard mobile nav (Escape, focus trap, click-outside), and `prefers-reduced-motion` support are included.
 
-## Remaining setup checklist
+## Remaining setup checklist (requires your input / accounts)
 
-1. Create the GitHub repository and push `main` (do not invent owner/repo names).
-2. Connect Cloudflare Pages to that repo; confirm build uses `npm run build` → `dist`.
-3. Set `PUBLIC_SITE_URL` to the real domain (then rebuild).
+1. Push `main` to GitHub if the remote is not yet the source of truth for Cloudflare (do not invent owner/repo names).
+2. Connect Cloudflare Pages to that repo; confirm build uses `npm run build` → `dist` (Node 22).
+3. Set `PUBLIC_SITE_URL` to the real domain (then rebuild) — enables canonical URLs, sitemap, and the Sitemap line in `/robots.txt`.
 4. Set `PUBLIC_CTF_URL` when the arena URL is known.
 5. Configure Decap Turbo and replace `REPLACE_WITH_DECAP_TURBO_SITE_ID` in `public/admin/config.yml`.
-6. Test `/admin/` login on the live site.
-7. Replace placeholder announcement/resource bodies with real community materials as they become available.
-8. Add `Sitemap:` to `public/robots.txt` once the production sitemap URL exists.
+6. Optionally set `site_url` / `display_url` in `public/admin/config.yml` to the production origin.
+7. Test `/admin/` login on the live site after Turbo Site ID is set.
+8. Add real community contact/social links in `src/data/site.ts` when available (empty values stay hidden).

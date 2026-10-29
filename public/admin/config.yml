@@ -16,6 +16,7 @@ backend:
   name: turbo-github
   # REPLACE_WITH_DECAP_TURBO_SITE_ID — paste the UUID from Decap Turbo → Site → Overview.
   # /admin production login will not work until this is set to the real Site ID.
+  # Do not invent a UUID; create the Turbo site after the GitHub repo exists.
   turbo_site_id: REPLACE_WITH_DECAP_TURBO_SITE_ID
   branch: main
 
@@ -23,11 +24,14 @@ backend:
 media_folder: public/uploads/resources
 public_folder: /uploads/resources
 
-# Set these to your production origin when known, e.g. https://cybercrew.example
+# Set these to your production origin when known (no trailing slash).
 # site_url: https://your-domain.example
 # display_url: https://your-domain.example
 
 logo_url: /brand/logo-badge.webp
+
+# Simple publishing: editors push straight to the content branch.
+publish_mode: simple
 
 collections:
   - name: resources
@@ -74,10 +78,15 @@ collections:
         name: file
         widget: file
         required: false
-        media_folder: /public/uploads/resources
+        media_folder: public/uploads/resources
         public_folder: /uploads/resources
         hint: Uploaded files in a public repo are publicly downloadable.
-      - { label: Thumbnail, name: thumbnail, widget: image, required: false }
+      - label: Thumbnail
+        name: thumbnail
+        widget: image
+        required: false
+        media_folder: public/uploads/resources
+        public_folder: /uploads/resources
       - { label: Featured, name: featured, widget: boolean, default: false }
       - { label: Published, name: published, widget: boolean, default: true }
       - { label: Publication date, name: pubDate, widget: datetime }

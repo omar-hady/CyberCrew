@@ -2,6 +2,9 @@
  * Site configuration for CyberCrew.
  * Set PUBLIC_CTF_URL in your environment / host settings when the CTF platform URL is known.
  * Do not invent a CTF URL — leave empty until the real platform address is available.
+ *
+ * Learning track copy lives in `src/content/tracks/` (CMS-editable) and is loaded via
+ * `getTracks()` so listings stay in sync with track detail pages.
  */
 export const site = {
   name: "CyberCrew",
@@ -13,9 +16,17 @@ export const site = {
   /** External CTF platform — never invent this URL. */
   ctfUrl: import.meta.env.PUBLIC_CTF_URL ?? "",
   ctfLabel: "CTF Arena",
+  /** Public contact email — leave empty until a real address is published. */
   email: "",
+  /**
+   * Community / social destinations. Only add real, verified URLs.
+   * Empty keys are omitted from the UI until configured.
+   */
   social: {
-    // Add real links when available
+    discord: "",
+    github: "",
+    linkedin: "",
+    x: "",
   },
   nav: [
     { label: "Tracks", href: "/tracks" },
@@ -24,36 +35,6 @@ export const site = {
     { label: "CTF Arena", href: "/ctf" },
     { label: "About", href: "/about" },
   ],
-  tracks: [
-    {
-      slug: "penetration-testing",
-      title: "Penetration Testing",
-      short: "Offensive methodology, recon, exploitation, and reporting.",
-      level: "Beginner → Advanced",
-      accent: "pentest",
-    },
-    {
-      slug: "soc-blue-team",
-      title: "SOC & Blue Team",
-      short: "Detection, triage, hunting, and defensive operations.",
-      level: "Beginner → Intermediate",
-      accent: "blue",
-    },
-    {
-      slug: "malware-analysis",
-      title: "Malware Analysis",
-      short: "Static and dynamic analysis of suspicious binaries.",
-      level: "Intermediate → Advanced",
-      accent: "malware",
-    },
-    {
-      slug: "ctf-learning",
-      title: "CTF Learning",
-      short: "Challenge-driven practice across common CTF categories.",
-      level: "Beginner → Advanced",
-      accent: "ctf",
-    },
-  ] as const,
 } as const;
 
-export type TrackSlug = (typeof site.tracks)[number]["slug"];
+export type SocialNetwork = keyof typeof site.social;

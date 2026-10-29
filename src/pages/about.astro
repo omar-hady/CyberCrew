@@ -1,6 +1,9 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { site } from "../data/site";
+import { getTracks } from "../lib/tracks";
+
+const tracks = await getTracks();
 ---
 
 <BaseLayout
@@ -20,10 +23,9 @@ import { site } from "../data/site";
       <article class="panel block">
         <h2>Purpose</h2>
         <p class="muted">
-          CyberCrew exists to help people learn cybersecurity through structured tracks,
-          shared resources, community sessions, and challenge practice. The brand identity —
-          horned emblem, sharp CYBER letterforms, tracked red CREW — signals a focused crew
-          without resorting to cliché neon or binary-code aesthetics.
+          CyberCrew helps people learn cybersecurity through structured tracks, shared resources,
+          community sessions, and challenge practice. We emphasize ethics, methodology, and
+          notes that compound — not hype, fake metrics, or tool collecting for its own sake.
         </p>
 
         <h2>Learning philosophy</h2>
@@ -38,10 +40,10 @@ import { site } from "../data/site";
         <h2>Tracks</h2>
         <div class="track-links">
           {
-            site.tracks.map((t) => (
-              <a href={`/tracks/${t.slug}`}>
-                <strong>{t.title}</strong>
-                <span>{t.short}</span>
+            tracks.map((t) => (
+              <a href={`/tracks/${t.id}`}>
+                <strong>{t.data.title}</strong>
+                <span>{t.data.short}</span>
               </a>
             ))
           }
@@ -63,8 +65,8 @@ import { site } from "../data/site";
           </picture>
         </div>
         <p class="caption muted">
-          Official mark from the CyberCrew logo pack — horned emblem, white CYBER, tracked red
-          CREW. Aspect ratio preserved; not recolored or redrawn.
+          Official CyberCrew mark used across the site — circular badge with the crew emblem and
+          wordmark.
         </p>
         <a class="btn" href="/tracks">Start with a track</a>
         <a class="btn btn-secondary" href="/library">Browse the library</a>

@@ -1,8 +1,0 @@
-User-agent: *
-Allow: /
-
-Disallow: /admin/
-
-# When PUBLIC_SITE_URL is set and sitemap generation is enabled,
-# add your absolute sitemap URL after deployment, e.g.:
-# Sitemap: https://example.com/sitemap-index.xml

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex" />
+    <meta name="robots" content="noindex, nofollow" />
     <!-- Ensures ./config.yml resolves when the page is opened as /admin (no trailing slash). -->
     <base href="/admin/" />
     <title>CyberCrew Content Admin</title>
@@ -27,6 +27,12 @@
       .boot code {
         color: #ee2227;
       }
+      .boot p {
+        line-height: 1.55;
+      }
+      .boot a {
+        color: #ff3a3f;
+      }
     </style>
   </head>
   <body>
@@ -35,7 +41,13 @@
         <p>JavaScript is required for Decap CMS.</p>
       </div>
     </noscript>
-    <!-- Decap CMS 3.17+ includes turbo-github. Auth via Decap Turbo (see README). -->
-    <script src="https://cdn.jsdelivr.net/npm/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <!--
+      Production auth: Decap Turbo (turbo-github). Set turbo_site_id in config.yml
+      to the real Site ID UUID from the Turbo dashboard — do not invent it.
+      Local editing: run `npm run cms` with `npm run dev` (local_backend: true).
+      Docs: https://decapcms.org/docs/turbo-getting-started/
+    -->
+    <!-- Pin Decap CMS 3.17+ (required for turbo-github). -->
+    <script src="https://cdn.jsdelivr.net/npm/decap-cms@3.17.3/dist/decap-cms.js"></script>
   </body>
 </html>

@@ -2,18 +2,6 @@
    Accent #ee2227 · Ember #2e1010 · Ink #020202
    Geometry: sharp 45° cuts + circular badge rings from STICKER / circ marks */
 
-@font-face {
-  font-family: "Syne";
-  font-style: normal;
-  font-weight: 500 800;
-  font-display: swap;
-  src: url("https://cdn.jsdelivr.net/fontsource/fonts/syne:vf@latest/latin-wght-normal.woff2")
-    format("woff2-variations");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
 :root {
   /* Brand fills from Logo/SVG WHITE&RED, BLACK&RED, circ gradBG */
   --cc-accent: #ee2227;
@@ -35,12 +23,12 @@
   --cc-line: #2a1515;
   --cc-line-strong: #3f2020;
   --cc-text: #efe6e6;
-  --cc-text-muted: #a08c8c;
-  --cc-text-faint: #6e5757;
+  --cc-text-muted: #b39a9a;
+  --cc-text-faint: #8f7373;
   --cc-danger: #ee2227;
   --cc-warning: #c9a227;
 
-  --font-display: "Syne", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-display: "Syne Variable", "Syne", "Arial Narrow", "Helvetica Neue", sans-serif;
   --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
 
@@ -334,6 +322,14 @@ p {
   transform: translateY(1px);
 }
 
+/* Clip-path clips box-shadow; restore a visible focus ring without clipping. */
+.btn:focus-visible {
+  clip-path: none;
+  outline: 2px solid var(--cc-accent);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+
 .btn-secondary {
   --btn-bg: transparent;
   --btn-fg: var(--cc-paper);
@@ -413,6 +409,13 @@ p {
 
   .grid-4 {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablet: keep nav usable without cramped CTAs */
+@media (max-width: 899px) {
+  .page-hero {
+    padding-top: calc(var(--header-h) + var(--space-6));
   }
 }
 

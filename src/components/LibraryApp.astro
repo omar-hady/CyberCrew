@@ -1,8 +1,8 @@
 ---
 import type { Resource } from "../lib/resources";
+import ResourceCard from "./ResourceCard.astro";
 import {
   difficultyLabel,
-  resourceHref,
   trackLabel,
   typeLabel,
 } from "../lib/resources";
@@ -15,7 +15,7 @@ const { resources } = Astro.props;
 
 const payload = resources.map((r) => ({
   id: r.id,
-  href: resourceHref(r),
+  href: `/library/${r.id}`,
   title: r.data.title,
   description: r.data.description,
   track: r.data.track,
@@ -23,13 +23,14 @@ const payload = resources.map((r) => ({
   type: r.data.type,
   tags: r.data.tags,
   featured: r.data.featured,
+  thumbnail: r.data.thumbnail ?? "",
   pubDate: r.data.pubDate.toISOString(),
   order: r.data.order,
 }));
 ---
 
 <div class="library" data-library>
-  <form class="filters panel" data-filters>
+  <form class="filters panel" data-filters role="search" aria-label="Filter resources">
     <div class="field grow">
       <label for="q">Search</label>
       <input
@@ -81,12 +82,22 @@ const payload = resources.map((r) => ({
         <option value="title">Title A–Z</option>
       </select>
     </div>
-    <button type="button" class="btn btn-secondary" data-reset>Reset</button>
+    <button type="button" class="btn btn-secondary reset" data-reset>Reset</button>
   </form>
 
-  <p class="status" data-status aria-live="polite"></p>
+  <p class="status" data-status aria-live="polite">
+    {resources.length} resource{resources.length === 1 ? "" : "s"}
+  </p>
 
-  <div class="results" data-results></div>
+  <noscript>
+    <p class="noscript-note muted">
+      JavaScript is off — showing the full library. Enable JavaScript for live search and filters.
+    </p>
+  </noscript>
+
+  <div class="results" data-results>
+    {resources.map((resource) => <ResourceCard resource={resource} />)}
+  </div>
 
   <div class="empty-state" data-empty hidden>
     <strong>No matching resources</strong>
@@ -111,6 +122,7 @@ const payload = resources.map((r) => ({
     type: string;
     tags: string[];
     featured: boolean;
+    thumbnail: string;
     pubDate: string;
     order: number;
   };
@@ -207,9 +219,13 @@ const payload = resources.map((r) => ({
     status.textContent = `${list.length} resource${list.length === 1 ? "" : "s"}`;
     empty.hidden = list.length > 0;
     results.innerHTML = list
-      .map(
-        (item) => `
+      .map((item) => {
+        const thumb = item.thumbnail
+          ? `<a class="thumb" href="${item.href}" tabindex="-1" aria-hidden="true"><img src="${escapeHtml(item.thumbnail)}" alt="" width="640" height="360" loading="lazy" decoding="async" /></a>`
+          : "";
+        return `
       <article class="resource-card panel">
+        ${thumb}
         <div class="meta">
           <span class="tag tag-accent">${typeLabel[item.type] ?? item.type}</span>
           <span class="tag">${difficultyLabel[item.difficulty] ?? item.difficulty}</span>
@@ -219,10 +235,10 @@ const payload = resources.map((r) => ({
         <p>${escapeHtml(item.description)}</p>
         <div class="foot">
           <span>${trackLabel[item.track] ?? item.track}</span>
-          <a class="more" href="${item.href}">View</a>
+          <span class="more" aria-hidden="true">View</span>
         </div>
-      </article>`,
-      )
+      </article>`;
+      })
       .join("");
   }
 
@@ -234,6 +250,10 @@ const payload = resources.map((r) => ({
       .replaceAll('"', "&quot;");
   }
 
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    render();
+  });
   form.addEventListener("input", render);
   form.addEventListener("change", render);
   resetBtn.addEventListener("click", () => {
@@ -276,12 +296,21 @@ const payload = resources.map((r) => ({
     font: inherit;
   }
 
+  .reset {
+    align-self: stretch;
+  }
+
   .status {
     margin: 0 0 1rem;
     font-family: var(--font-mono);
     font-size: 0.75rem;
     letter-spacing: 0.06em;
     color: var(--cc-text-muted);
+  }
+
+  .noscript-note {
+    margin: 0 0 1rem;
+    font-size: 0.9rem;
   }
 
   .results {
@@ -294,6 +323,30 @@ const payload = resources.map((r) => ({
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    height: 100%;
+    transition:
+      border-color var(--duration) var(--ease-out),
+      transform var(--duration) var(--ease-out);
+  }
+
+  .results :global(.resource-card:hover) {
+    border-color: color-mix(in srgb, var(--cc-accent) 40%, var(--cc-line));
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--cc-accent) 12%, transparent);
+  }
+
+  .results :global(.thumb) {
+    display: block;
+    margin: -0.35rem -0.45rem 0.15rem;
+    overflow: hidden;
+    border: 1px solid var(--cc-line);
+    aspect-ratio: 16 / 9;
+  }
+
+  .results :global(.thumb img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .results :global(.meta) {
@@ -312,6 +365,10 @@ const payload = resources.map((r) => ({
     text-decoration: none;
   }
 
+  .results :global(h3 a:hover) {
+    color: var(--cc-accent);
+  }
+
   .results :global(p) {
     margin: 0;
     color: var(--cc-text-muted);
@@ -322,23 +379,43 @@ const payload = resources.map((r) => ({
   .results :global(.foot) {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: 1rem;
     padding-top: 0.65rem;
     border-top: 1px solid var(--cc-line);
     font-family: var(--font-mono);
     font-size: 0.72rem;
+    letter-spacing: 0.04em;
     color: var(--cc-text-faint);
   }
 
   .results :global(.more) {
     color: var(--cc-accent);
-    text-decoration: none;
+    font-weight: 500;
   }
 
-  @media (min-width: 720px) {
+  .results :global(.resource-card:hover .more) {
+    color: var(--cc-paper-bright);
+  }
+
+  @media (min-width: 640px) {
     .filters {
-      grid-template-columns: 1.4fr repeat(4, 1fr) auto;
+      grid-template-columns: 1fr 1fr;
       align-items: end;
+    }
+
+    .grow {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 960px) {
+    .filters {
+      grid-template-columns: 1.5fr repeat(4, minmax(0, 1fr)) auto;
+    }
+
+    .grow {
+      grid-column: auto;
     }
   }
 

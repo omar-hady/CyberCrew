@@ -13,20 +13,29 @@ interface Props {
 
 const { resource } = Astro.props;
 const { data } = resource;
+const href = resourceHref(resource);
 ---
 
 <article class="resource-card panel">
+  {
+    data.thumbnail && (
+      <a class="thumb" href={href} tabindex="-1" aria-hidden="true">
+        <img src={data.thumbnail} alt="" width="640" height="360" loading="lazy" decoding="async" />
+      </a>
+    )
+  }
   <div class="meta">
     <span class="tag tag-accent">{typeLabel[data.type]}</span>
     <span class="tag">{difficultyLabel[data.difficulty]}</span>
+    {data.featured && <span class="tag">Featured</span>}
   </div>
   <h3>
-    <a href={resourceHref(resource)}>{data.title}</a>
+    <a href={href}>{data.title}</a>
   </h3>
   <p>{data.description}</p>
   <div class="foot">
     <span>{trackLabel[data.track]}</span>
-    <a class="more" href={resourceHref(resource)}>View</a>
+    <span class="more" aria-hidden="true">View</span>
   </div>
 </article>
 
@@ -46,6 +55,20 @@ const { data } = resource;
     border-color: color-mix(in srgb, var(--cc-accent) 40%, var(--cc-line));
     transform: translateY(-2px);
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--cc-accent) 12%, transparent);
+  }
+
+  .thumb {
+    display: block;
+    margin: -0.35rem -0.45rem 0.15rem;
+    overflow: hidden;
+    border: 1px solid var(--cc-line);
+    aspect-ratio: 16 / 9;
+  }
+
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .meta {
@@ -90,11 +113,10 @@ const { data } = resource;
 
   .more {
     color: var(--cc-accent);
-    text-decoration: none;
     font-weight: 500;
   }
 
-  .more:hover {
+  .resource-card:hover .more {
     color: var(--cc-paper-bright);
   }
 </style>

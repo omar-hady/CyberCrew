@@ -1,10 +1,28 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
+import { site } from "../data/site";
 
 const items = (await getCollection("announcements"))
   .filter((a) => a.data.published)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const rendered = await Promise.all(
+  items.map(async (item) => {
+    const { Content } = await render(item);
+    return { item, Content };
+  }),
+);
+
+const socialLinks = Object.entries(site.social)
+  .filter(([, href]) => Boolean(href?.trim()))
+  .map(([network, href]) => ({
+    network,
+    href: href.trim(),
+    label: network.charAt(0).toUpperCase() + network.slice(1),
+  }));
+const hasEmail = Boolean(site.email.trim());
+const hasContact = hasEmail || socialLinks.length > 0;
 ---
 
 <BaseLayout
@@ -17,18 +35,61 @@ const items = (await getCollection("announcements"))
       <h1>Community</h1>
       <p class="lede">
         Workshops, practice sessions, announcements, and contribution calls — published from
-        project content files. Placeholder entries are explicitly marked until organizers
-        confirm details.
+        project content files via Decap CMS. Confirm dates and links in each post before you rely
+        on them for scheduling.
       </p>
+    </div>
+  </section>
+
+  <section class="section-sm join-section" aria-labelledby="join-title">
+    <div class="container">
+      <div class="panel join">
+        <h2 id="join-title">How to participate</h2>
+        <p class="muted">
+          Start with a learning track, use the library for shared materials, and watch this feed for
+          confirmed workshops and practice nights. Contribute notes and cheatsheets through the
+          content admin once organizers grant access.
+        </p>
+        {
+          hasContact ? (
+            <ul class="contact-list">
+              {hasEmail && (
+                <li>
+                  <span class="label">Email</span>
+                  <a href={`mailto:${site.email}`}>{site.email}</a>
+                </li>
+              )}
+              {socialLinks.map((s) => (
+                <li>
+                  <span class="label">{s.label}</span>
+                  <a href={s.href} rel="noopener noreferrer" target="_blank">
+                    {s.href.replace(/^https?:\/\//, "")}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="notice muted">
+              Public chat and email links are not published on this site yet. Organizers can add
+              verified contact details in <code>src/data/site.ts</code> when channels are ready —
+              this page will surface them automatically.
+            </p>
+          )
+        }
+        <div class="join-actions">
+          <a class="btn" href="/tracks">Explore tracks</a>
+          <a class="btn btn-secondary" href="/library">Open library</a>
+        </div>
+      </div>
     </div>
   </section>
 
   <section class="section-sm">
     <div class="container">
       {
-        items.length ? (
+        rendered.length ? (
           <ol class="feed">
-            {items.map((item) => (
+            {rendered.map(({ item, Content }) => (
               <li class="panel">
                 <div class="top">
                   <span class="tag tag-accent">{item.data.kind}</span>
@@ -47,7 +108,10 @@ const items = (await getCollection("announcements"))
                     item.data.title
                   )}
                 </h2>
-                <p>{item.data.summary}</p>
+                <p class="summary">{item.data.summary}</p>
+                <div class="body prose">
+                  <Content />
+                </div>
               </li>
             ))}
           </ol>
@@ -63,6 +127,60 @@ const items = (await getCollection("announcements"))
 </BaseLayout>
 
 <style>
+  .join {
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .join h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.35rem;
+  }
+
+  .join > .muted {
+    margin: 0 0 1rem;
+    max-width: 48rem;
+  }
+
+  .notice {
+    margin: 0 0 1.25rem;
+    padding: 0.9rem 1rem;
+    border: 1px dashed var(--cc-line-strong);
+    background: var(--cc-surface-2);
+  }
+
+  .notice code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--cc-accent);
+  }
+
+  .contact-list {
+    list-style: none;
+    margin: 0 0 1.25rem;
+    padding: 0;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .contact-list li {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .contact-list .label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cc-text-faint);
+  }
+
+  .join-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
   .feed {
     list-style: none;
     margin: 0;
@@ -104,8 +222,21 @@ const items = (await getCollection("announcements"))
     color: var(--cc-accent);
   }
 
-  p {
-    margin: 0;
+  .summary {
+    margin: 0 0 0.75rem;
     color: var(--cc-text-muted);
+  }
+
+  .body {
+    color: var(--cc-text-muted);
+    font-size: 0.95rem;
+  }
+
+  .body :global(p:first-child) {
+    margin-top: 0;
+  }
+
+  .body :global(a) {
+    color: var(--cc-accent-hot);
   }
 </style>

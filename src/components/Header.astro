@@ -49,12 +49,13 @@ function isActive(href: string) {
     </nav>
 
     <div class="header-actions">
-      <a class="btn btn-secondary header-cta" href="/library">Library</a>
+      <a class="btn btn-secondary header-cta" href="/tracks">Explore tracks</a>
       <button
         type="button"
         class="menu-toggle"
         aria-expanded="false"
         aria-controls="mobile-nav"
+        aria-label="Open menu"
         data-menu-toggle
       >
         <span class="sr-only">Menu</span>
@@ -76,7 +77,7 @@ function isActive(href: string) {
           </a>
         ))
       }
-      <a class="btn" href="/library">Browse library</a>
+      <a class="btn" href="/tracks">Explore tracks</a>
     </nav>
   </div>
 </header>
@@ -292,24 +293,62 @@ function isActive(href: string) {
 <script>
   const toggle = document.querySelector("[data-menu-toggle]");
   const panel = document.querySelector("[data-mobile-nav]");
+  const header = document.querySelector(".site-header");
 
   if (toggle instanceof HTMLButtonElement && panel instanceof HTMLElement) {
+    const focusables = () =>
+      [
+        toggle,
+        ...panel.querySelectorAll<HTMLElement>("a, button, [tabindex]:not([tabindex='-1'])"),
+      ].filter((el) => !el.hasAttribute("disabled") && el.offsetParent !== null);
+
+    const isOpen = () => toggle.getAttribute("aria-expanded") === "true";
+
     const setOpen = (open: boolean) => {
       toggle.setAttribute("aria-expanded", String(open));
+      toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
       panel.hidden = !open;
+      document.body.style.overflow = open ? "hidden" : "";
+      if (open) {
+        const first = panel.querySelector("a");
+        if (first instanceof HTMLElement) first.focus();
+      } else {
+        toggle.focus();
+      }
     };
 
-    toggle.addEventListener("click", () => {
-      const open = toggle.getAttribute("aria-expanded") !== "true";
-      setOpen(open);
-    });
+    toggle.addEventListener("click", () => setOpen(!isOpen()));
 
     panel.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", () => setOpen(false));
     });
 
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") setOpen(false);
+      if (!isOpen()) return;
+      if (e.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const items = focusables();
+      if (items.length < 2) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    document.addEventListener("pointerdown", (e) => {
+      if (!isOpen()) return;
+      const target = e.target;
+      if (!(target instanceof Node)) return;
+      if (header?.contains(target)) return;
+      setOpen(false);
     });
   }
 

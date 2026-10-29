@@ -22,9 +22,23 @@ const { resource } = Astro.props;
 const { Content } = await render(resource);
 const action = resourceAction(resource);
 const { data } = resource;
+
+const learningResourceLd = {
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  name: data.title,
+  description: data.description,
+  learningResourceType: typeLabel[data.type],
+  educationalLevel: difficultyLabel[data.difficulty],
+  datePublished: data.pubDate.toISOString().slice(0, 10),
+  keywords: data.tags.join(", "),
+  isAccessibleForFree: true,
+  ...(action ? { url: action.href } : {}),
+};
 ---
 
 <BaseLayout title={data.title} description={data.description}>
+  <script type="application/ld+json" set:html={JSON.stringify(learningResourceLd)} />
   <section class="page-hero">
     <div class="container">
       <p class="eyebrow">Resource</p>
@@ -103,9 +117,48 @@ const { data } = resource;
     padding: clamp(1.25rem, 3vw, 2rem);
   }
 
+  .body :global(h2),
+  .body :global(h3) {
+    margin: 1.5rem 0 0.75rem;
+    font-size: 1.2rem;
+  }
+
+  .body :global(h2:first-child),
+  .body :global(h3:first-child) {
+    margin-top: 0;
+  }
+
   .body :global(p),
   .body :global(li) {
     color: var(--cc-text-muted);
+  }
+
+  .body :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    margin: 1rem 0;
+  }
+
+  .body :global(th),
+  .body :global(td) {
+    border: 1px solid var(--cc-line);
+    padding: 0.55rem 0.7rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .body :global(th) {
+    color: var(--cc-paper-bright);
+    background: var(--cc-surface-2);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .body :global(a) {
+    color: var(--cc-accent-hot);
   }
 
   .tag-row {

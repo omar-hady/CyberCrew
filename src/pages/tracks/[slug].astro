@@ -28,7 +28,7 @@ const resources = await getResourcesByTrack(track.id);
       <p class="lede">{track.data.short}</p>
       <div class="meta-row">
         <span class="tag tag-accent">{track.data.level}</span>
-        <a class="btn btn-secondary" href="/library">Filter library</a>
+        <a class="btn btn-secondary" href={`/library?track=${track.id}`}>Filter library</a>
       </div>
     </div>
   </section>

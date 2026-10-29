@@ -43,15 +43,14 @@ const hasCtf = Boolean(ctfUrl);
             </a>
           ) : (
             <div class="notice panel">
-              <strong>CTF platform URL not configured</strong>
+              <strong>Arena link coming soon</strong>
               <p>
-                No CTF URL was found in this repository. Set
-                <code>PUBLIC_CTF_URL</code> in your host environment (or
-                <code>.env</code> locally) to the real arena address, then rebuild. Do not invent
-                a placeholder competition URL.
+                The external CTF platform URL is not configured yet. When organizers publish the
+                real arena address, set <code>PUBLIC_CTF_URL</code> and rebuild — this page will
+                show the Enter button. Until then, use the CTF Learning track and library resources.
               </p>
               <a class="btn btn-secondary" href="/tracks/ctf-learning">
-                Study the CTF track meanwhile
+                Study the CTF track
               </a>
             </div>
           )

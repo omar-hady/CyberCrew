@@ -1,7 +1,9 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import TrackCard from "../../components/TrackCard.astro";
-import { site } from "../../data/site";
+import { getTracks } from "../../lib/tracks";
+
+const tracks = await getTracks();
 ---
 
 <BaseLayout
@@ -22,12 +24,12 @@ import { site } from "../../data/site";
   <section class="section-sm">
     <div class="container-wide grid-2">
       {
-        site.tracks.map((t, i) => (
+        tracks.map((t, i) => (
           <TrackCard
-            slug={t.slug}
-            title={t.title}
-            short={t.short}
-            level={t.level}
+            slug={t.id}
+            title={t.data.title}
+            short={t.data.short}
+            level={t.data.level}
             index={i}
           />
         ))
