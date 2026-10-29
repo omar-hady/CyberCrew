@@ -87,7 +87,15 @@ const hasEmail = Boolean(site.email.trim());
   </div>
 
   <div class="container-wide footer-bottom">
-    <p>© {new Date().getFullYear()} CyberCrew. Built for practical cybersecurity learning.</p>
+    <div class="footer-bottom-meta">
+      <p>© {new Date().getFullYear()} CyberCrew. Built for practical cybersecurity learning.</p>
+      <p class="footer-credit">
+        Built by{" "}
+        <a href="https://www.linkedin.com/in/omarhadyalnajjar/" rel="noopener noreferrer" target="_blank">
+          Omar AlNajjar
+        </a>
+      </p>
+    </div>
     <p class="muted">
       Public static site — uploaded files committed to the repository are public.
     </p>
@@ -192,6 +200,28 @@ const hasEmail = Boolean(site.email.trim());
 
   .footer-bottom p {
     margin: 0;
+  }
+
+  .footer-bottom-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.85rem;
+  }
+
+  .footer-credit {
+    color: var(--cc-text-faint);
+  }
+
+  .footer-credit a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--cc-line) 80%, transparent);
+  }
+
+  .footer-credit a:hover {
+    color: var(--cc-paper-bright);
+    border-bottom-color: color-mix(in srgb, var(--cc-accent) 55%, transparent);
   }
 
   @media (min-width: 640px) {
