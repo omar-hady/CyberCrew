@@ -27,4 +27,4 @@ GITHUB_REPO_PRIVATE = "0"
 # Comma-separated production site origins that may receive the OAuth postMessage
 # (no trailing slash). Update before deploy to match where /admin/ is hosted.
 # Include Pages preview origins only if you intentionally allow CMS login there.
-OAUTH_ALLOWED_ORIGINS = "https://cybercrew.pages.dev"
+OAUTH_ALLOWED_ORIGINS = "https://cybercrew.me,https://www.cybercrew.me,https://cybercrew.pages.dev"
