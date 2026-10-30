@@ -1,30 +1,28 @@
-/* CyberCrew design system — derived from Logo pack
-   Accent #ee2227 · Ember #2e1010 · Ink #020202
-   Geometry: sharp 45° cuts + circular badge rings from STICKER / circ marks */
+/* CyberCrew design system — black/red identity, restrained for long reading
+   Accent #ee2227 · Ember #2e1010 · Ink #020202 */
 
 :root {
-  /* Brand fills from Logo/SVG WHITE&RED, BLACK&RED, circ gradBG */
   --cc-accent: #ee2227;
   --cc-accent-deep: #b5181c;
-  --cc-accent-hot: #ff3a3f;
+  --cc-accent-hot: #f23a3e;
   --cc-accent-ring: #ed2529;
-  --cc-accent-soft: color-mix(in srgb, var(--cc-accent) 12%, transparent);
+  --cc-accent-soft: color-mix(in srgb, var(--cc-accent) 8%, transparent);
   --cc-ember: #2e1010;
-  --cc-ember-mid: #4a1818;
-  --cc-ember-soft: color-mix(in srgb, var(--cc-ember) 55%, transparent);
+  --cc-ember-mid: #3d1616;
+  --cc-ember-soft: color-mix(in srgb, var(--cc-ember) 40%, transparent);
 
-  --cc-paper: #f4ecec;
-  --cc-paper-bright: #fbf7f7;
+  --cc-paper: #f0ecec;
+  --cc-paper-bright: #f7f5f5;
   --cc-ink: #020202;
-  --cc-ink-elevated: #0a0505;
-  --cc-surface: #100808;
-  --cc-surface-2: #180c0c;
-  --cc-surface-3: #221212;
-  --cc-line: #2a1515;
-  --cc-line-strong: #3f2020;
-  --cc-text: #efe6e6;
-  --cc-text-muted: #b39a9a;
-  --cc-text-faint: #8f7373;
+  --cc-ink-elevated: #080606;
+  --cc-surface: #0e0b0b;
+  --cc-surface-2: #151010;
+  --cc-surface-3: #1c1515;
+  --cc-line: #241a1a;
+  --cc-line-strong: #322424;
+  --cc-text: #e6e2e2;
+  --cc-text-muted: #9b9393;
+  --cc-text-faint: #746c6c;
   --cc-danger: #ee2227;
   --cc-warning: #c9a227;
 
@@ -44,18 +42,19 @@
 
   --container: 72rem;
   --container-wide: 84rem;
-  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+  --gutter: clamp(1.15rem, 4vw, 2.5rem);
 
   --radius-sm: 2px;
   --radius-md: 4px;
   --chamfer: 12px;
 
-  --shadow-soft: 0 28px 56px -36px rgba(0, 0, 0, 0.78);
-  --shadow-glow: 0 0 48px -12px color-mix(in srgb, var(--cc-accent) 38%, transparent);
+  --shadow-soft: 0 20px 40px -28px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 36px -16px color-mix(in srgb, var(--cc-accent) 22%, transparent);
+  --shadow-glow-soft: 0 0 48px -8px color-mix(in srgb, var(--cc-accent) 18%, transparent);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --duration: 220ms;
+  --duration: 200ms;
 
-  --header-h: 4.5rem;
+  --header-h: 4.25rem;
   --focus: 0 0 0 2px var(--cc-ink), 0 0 0 4px var(--cc-accent);
 }
 
@@ -68,6 +67,7 @@
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
+  overflow-x: clip;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -87,6 +87,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: clip;
   background: var(--cc-ink);
   color: var(--cc-text);
   font-family: var(--font-body);
@@ -96,7 +97,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Ember atmosphere — logo’s smoky crimson field, not neon grid clutter */
+/* Quiet atmosphere — soft ember wash, no neon grid */
 body::before {
   content: "";
   position: fixed;
@@ -104,9 +105,8 @@ body::before {
   z-index: -2;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 52% 48% at 12% 18%, rgba(238, 34, 39, 0.16), transparent 58%),
-    radial-gradient(ellipse 42% 36% at 88% 8%, rgba(46, 16, 16, 0.85), transparent 55%),
-    radial-gradient(ellipse 55% 40% at 70% 92%, rgba(238, 34, 39, 0.07), transparent 60%),
+    radial-gradient(ellipse 48% 42% at 10% 12%, rgba(238, 34, 39, 0.06), transparent 62%),
+    radial-gradient(ellipse 40% 32% at 92% 6%, rgba(46, 16, 16, 0.45), transparent 58%),
     linear-gradient(180deg, var(--cc-ink) 0%, var(--cc-ink-elevated) 100%);
 }
 
@@ -116,22 +116,22 @@ body::after {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.09;
+  opacity: 0.035;
   background-image:
     linear-gradient(
       to right,
       transparent 0,
       transparent calc(100% - 1px),
-      color-mix(in srgb, var(--cc-accent) 35%, var(--cc-line)) calc(100% - 1px)
+      color-mix(in srgb, var(--cc-line-strong) 80%, transparent) calc(100% - 1px)
     ),
     linear-gradient(
       to bottom,
       transparent 0,
       transparent calc(100% - 1px),
-      color-mix(in srgb, var(--cc-accent) 28%, var(--cc-line)) calc(100% - 1px)
+      color-mix(in srgb, var(--cc-line-strong) 80%, transparent) calc(100% - 1px)
     );
   background-size: 96px 96px;
-  mask-image: radial-gradient(ellipse 48% 42% at 78% 22%, black, transparent 72%);
+  mask-image: radial-gradient(ellipse 42% 36% at 82% 18%, black, transparent 70%);
 }
 
 img,
@@ -142,7 +142,7 @@ svg {
 }
 
 a {
-  color: var(--cc-accent-hot);
+  color: var(--cc-accent);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
   transition: color var(--duration) var(--ease-out);
@@ -168,24 +168,24 @@ h3,
 h4 {
   font-family: var(--font-display);
   font-weight: 700;
-  line-height: 1.02;
+  line-height: 1.08;
   letter-spacing: -0.025em;
   color: var(--cc-paper-bright);
   text-wrap: balance;
 }
 
 h1 {
-  font-size: clamp(2.6rem, 6.4vw, 4.55rem);
+  font-size: clamp(2rem, 5.5vw, 3.5rem);
   font-weight: 800;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.03em;
 }
 
 h2 {
-  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-size: clamp(1.45rem, 3vw, 2.15rem);
 }
 
 h3 {
-  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  font-size: clamp(1.15rem, 2vw, 1.35rem);
 }
 
 p {
@@ -207,11 +207,11 @@ p {
 }
 
 .section {
-  padding-block: var(--space-8);
+  padding-block: clamp(2.75rem, 6vw, 4.5rem);
 }
 
 .section-sm {
-  padding-block: var(--space-7);
+  padding-block: clamp(2rem, 4.5vw, 3rem);
 }
 
 .eyebrow {
@@ -219,23 +219,22 @@ p {
   align-items: center;
   gap: 0.65rem;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 500;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--cc-accent);
-  margin: 0 0 var(--space-4);
+  margin: 0 0 var(--space-3);
 }
 
 .eyebrow::before {
   content: "";
-  width: 1.35rem;
+  width: 1.15rem;
   height: 2px;
   background: var(--cc-accent);
   clip-path: polygon(0 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
 }
 
-/* Chamfered frame — matches logo’s sharp 45° cuts */
 .chamfer {
   clip-path: polygon(
     var(--chamfer) 0,
@@ -262,10 +261,10 @@ p {
   position: absolute;
   top: 0;
   left: 0;
-  width: 14px;
-  height: 14px;
-  border-top: 1px solid var(--cc-accent);
-  border-left: 1px solid var(--cc-accent);
+  width: 10px;
+  height: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--cc-accent) 55%, transparent);
+  border-left: 1px solid color-mix(in srgb, var(--cc-accent) 55%, transparent);
   pointer-events: none;
 }
 
@@ -274,10 +273,10 @@ p {
   position: absolute;
   right: 0;
   bottom: 0;
-  width: 14px;
-  height: 14px;
-  border-right: 1px solid var(--cc-accent);
-  border-bottom: 1px solid var(--cc-accent);
+  width: 10px;
+  height: 10px;
+  border-right: 1px solid color-mix(in srgb, var(--cc-accent) 55%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--cc-accent) 55%, transparent);
   pointer-events: none;
 }
 
@@ -289,12 +288,13 @@ p {
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  min-height: 2.875rem;
-  padding: 0.7rem 1.35rem;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0.65rem 1.25rem;
   font-family: var(--font-display);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-decoration: none;
   text-transform: uppercase;
   color: var(--btn-fg);
@@ -306,23 +306,20 @@ p {
     background var(--duration) var(--ease-out),
     color var(--duration) var(--ease-out),
     border-color var(--duration) var(--ease-out),
-    transform var(--duration) var(--ease-out),
-    box-shadow var(--duration) var(--ease-out);
+    transform var(--duration) var(--ease-out);
 }
 
 .btn:hover {
-  --btn-bg: var(--cc-accent-hot);
-  --btn-border: var(--cc-accent-hot);
+  --btn-bg: var(--cc-accent-deep);
+  --btn-border: var(--cc-accent-deep);
   color: #fff;
   text-decoration: none;
-  box-shadow: var(--shadow-glow);
 }
 
 .btn:active {
   transform: translateY(1px);
 }
 
-/* Clip-path clips box-shadow; restore a visible focus ring without clipping. */
 .btn:focus-visible {
   clip-path: none;
   outline: 2px solid var(--cc-accent);
@@ -339,9 +336,8 @@ p {
 .btn-secondary:hover {
   --btn-bg: var(--cc-surface-3);
   --btn-fg: var(--cc-paper-bright);
-  --btn-border: var(--cc-accent);
+  --btn-border: color-mix(in srgb, var(--cc-accent) 50%, var(--cc-line-strong));
   color: var(--cc-paper-bright);
-  box-shadow: none;
 }
 
 .btn-ghost {
@@ -358,7 +354,6 @@ p {
   --btn-fg: var(--cc-accent);
   color: var(--cc-accent);
   background: transparent;
-  box-shadow: none;
 }
 
 .tag {
@@ -376,8 +371,8 @@ p {
 }
 
 .tag-accent {
-  color: var(--cc-accent-hot);
-  border-color: color-mix(in srgb, var(--cc-accent) 40%, var(--cc-line));
+  color: var(--cc-accent);
+  border-color: color-mix(in srgb, var(--cc-accent) 28%, var(--cc-line));
   background: var(--cc-accent-soft);
 }
 
@@ -412,10 +407,9 @@ p {
   }
 }
 
-/* Tablet: keep nav usable without cramped CTAs */
 @media (max-width: 899px) {
   .page-hero {
-    padding-top: calc(var(--header-h) + var(--space-6));
+    padding-top: calc(var(--header-h) + var(--space-5));
   }
 }
 
@@ -455,10 +449,10 @@ p {
 
 .reveal {
   opacity: 0;
-  transform: translateY(18px);
+  transform: translateY(12px);
   transition:
-    opacity 0.7s var(--ease-out),
-    transform 0.7s var(--ease-out);
+    opacity 0.55s var(--ease-out),
+    transform 0.55s var(--ease-out);
 }
 
 .reveal.is-visible {
@@ -493,14 +487,14 @@ p {
 
 .divider {
   height: 1px;
-  background: linear-gradient(90deg, var(--cc-accent), transparent 70%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--cc-accent) 55%, transparent), transparent 70%);
   border: 0;
   margin: 0;
 }
 
 .page-hero {
-  padding-top: calc(var(--header-h) + var(--space-7));
-  padding-bottom: var(--space-7);
+  padding-top: calc(var(--header-h) + var(--space-6));
+  padding-bottom: var(--space-6);
   position: relative;
 }
 
@@ -513,16 +507,17 @@ p {
   height: 1px;
   max-width: var(--container-wide);
   margin-inline: auto;
-  background: linear-gradient(90deg, var(--cc-accent), transparent 55%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--cc-accent) 50%, transparent), transparent 55%);
 }
 
 .page-hero h1 {
-  margin: 0 0 var(--space-4);
+  margin: 0 0 var(--space-3);
 }
 
 .page-hero .lede {
-  max-width: 42rem;
-  font-size: 1.125rem;
+  max-width: 40rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
   color: var(--cc-text-muted);
   margin: 0;
 }
@@ -542,7 +537,6 @@ p {
   margin-bottom: var(--space-2);
 }
 
-/* Wordmark lockup — echoes logo hierarchy: heavy CYBER + tracked CREW */
 .wordmark {
   display: inline-flex;
   flex-direction: column;

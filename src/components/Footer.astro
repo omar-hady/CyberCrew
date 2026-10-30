@@ -1,16 +1,12 @@
 ---
+import CommunityLinks from "./CommunityLinks.astro";
 import { site } from "../data/site";
 import { getTracks } from "../lib/tracks";
 
 const tracks = await getTracks();
-const socialLinks = Object.entries(site.social)
-  .filter(([, href]) => Boolean(href?.trim()))
-  .map(([network, href]) => ({
-    network,
-    href: href.trim(),
-    label: network.charAt(0).toUpperCase() + network.slice(1),
-  }));
-const hasEmail = Boolean(site.email.trim());
+const hasContact =
+  Boolean(site.email.trim()) ||
+  Object.values(site.social).some((href) => Boolean(href?.trim()));
 ---
 
 <footer class="site-footer">
@@ -30,24 +26,7 @@ const hasEmail = Boolean(site.email.trim());
         </picture>
       </a>
       <p class="footer-tagline">{site.tagline}</p>
-      {
-        (hasEmail || socialLinks.length > 0) && (
-          <ul class="footer-contact">
-            {hasEmail && (
-              <li>
-                <a href={`mailto:${site.email}`}>{site.email}</a>
-              </li>
-            )}
-            {socialLinks.map((s) => (
-              <li>
-                <a href={s.href} rel="noopener noreferrer" target="_blank">
-                  {s.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        )
-      }
+      {hasContact && <CommunityLinks size="sm" />}
     </div>
 
     <div>
@@ -106,9 +85,7 @@ const hasEmail = Boolean(site.email.trim());
   .site-footer {
     margin-top: var(--space-8);
     border-top: 1px solid var(--cc-line);
-    background:
-      radial-gradient(ellipse 42% 70% at 0% 0%, rgba(238, 34, 39, 0.1), transparent 58%),
-      var(--cc-ink-elevated);
+    background: var(--cc-ink-elevated);
     padding-block: var(--space-7) var(--space-6);
   }
 
@@ -127,12 +104,12 @@ const hasEmail = Boolean(site.email.trim());
   }
 
   .footer-logo {
-    width: clamp(4.5rem, 14vw, 5.5rem);
+    width: clamp(3.75rem, 12vw, 4.75rem);
     height: auto;
     aspect-ratio: 1;
     object-fit: contain;
     border-radius: 50%;
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--cc-accent) 35%, transparent);
+    border: 1px solid var(--cc-line);
   }
 
   .footer-tagline {
@@ -142,23 +119,8 @@ const hasEmail = Boolean(site.email.trim());
     font-size: 0.95rem;
   }
 
-  .footer-contact {
-    list-style: none;
-    margin: var(--space-4) 0 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem 1rem;
-  }
-
-  .footer-contact a {
-    color: var(--cc-text-muted);
-    text-decoration: none;
-    font-size: 0.9rem;
-  }
-
-  .footer-contact a:hover {
-    color: var(--cc-paper-bright);
+  .footer-brand :global(.community-links) {
+    margin-top: var(--space-4);
   }
 
   .footer-heading {
@@ -224,13 +186,13 @@ const hasEmail = Boolean(site.email.trim());
     border-bottom-color: color-mix(in srgb, var(--cc-accent) 55%, transparent);
   }
 
-  @media (min-width: 640px) {
+  @media (min-width: 560px) {
     .footer-grid {
-      grid-template-columns: 1.2fr 1fr;
+      grid-template-columns: 1fr 1fr;
     }
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 960px) {
     .footer-grid {
       grid-template-columns: 1.4fr 1fr 1fr 1fr;
     }

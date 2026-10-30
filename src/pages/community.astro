@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import CommunityLinks from "../components/CommunityLinks.astro";
 import { getCollection, render } from "astro:content";
 import { site } from "../data/site";
 
@@ -14,15 +15,9 @@ const rendered = await Promise.all(
   }),
 );
 
-const socialLinks = Object.entries(site.social)
-  .filter(([, href]) => Boolean(href?.trim()))
-  .map(([network, href]) => ({
-    network,
-    href: href.trim(),
-    label: network.charAt(0).toUpperCase() + network.slice(1),
-  }));
-const hasEmail = Boolean(site.email.trim());
-const hasContact = hasEmail || socialLinks.length > 0;
+const hasContact =
+  Boolean(site.email.trim()) ||
+  Object.values(site.social).some((href) => Boolean(href?.trim()));
 ---
 
 <BaseLayout
@@ -34,9 +29,8 @@ const hasContact = hasEmail || socialLinks.length > 0;
       <p class="eyebrow">Belong to the crew</p>
       <h1>Community</h1>
       <p class="lede">
-        Workshops, practice sessions, announcements, and contribution calls — published from
-        project content files via Decap CMS. Confirm dates and links in each post before you rely
-        on them for scheduling.
+        Workshops, practice sessions, announcements, and contribution calls. Confirm dates and
+        links in each post before you schedule around them.
       </p>
     </div>
   </section>
@@ -46,28 +40,15 @@ const hasContact = hasEmail || socialLinks.length > 0;
       <div class="panel join">
         <h2 id="join-title">How to participate</h2>
         <p class="muted">
-          Start with a learning track, use the library for shared materials, and watch this feed for
-          confirmed workshops and practice nights. Contribute notes and cheatsheets through the
-          content admin once organizers grant access.
+          Start with a learning track, use the library, and follow this feed for confirmed workshops
+          and practice nights. Contribute notes through the content admin once you have access.
         </p>
         {
           hasContact ? (
-            <ul class="contact-list">
-              {hasEmail && (
-                <li>
-                  <span class="label">Email</span>
-                  <a href={`mailto:${site.email}`}>{site.email}</a>
-                </li>
-              )}
-              {socialLinks.map((s) => (
-                <li>
-                  <span class="label">{s.label}</span>
-                  <a href={s.href} rel="noopener noreferrer" target="_blank">
-                    {s.href.replace(/^https?:\/\//, "")}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <div class="join-channels">
+              <p class="channels-label">Join the crew</p>
+              <CommunityLinks />
+            </div>
           ) : (
             <p class="notice muted">
               Public chat and email links are not published on this site yet. Organizers can add
@@ -154,23 +135,15 @@ const hasContact = hasEmail || socialLinks.length > 0;
     color: var(--cc-accent);
   }
 
-  .contact-list {
-    list-style: none;
-    margin: 0 0 1.25rem;
-    padding: 0;
-    display: grid;
-    gap: 0.65rem;
+  .join-channels {
+    margin: 0 0 1.35rem;
   }
 
-  .contact-list li {
-    display: grid;
-    gap: 0.2rem;
-  }
-
-  .contact-list .label {
+  .channels-label {
+    margin: 0 0 0.75rem;
     font-family: var(--font-mono);
     font-size: 0.7rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--cc-text-faint);
   }
@@ -237,6 +210,11 @@ const hasContact = hasEmail || socialLinks.length > 0;
   }
 
   .body :global(a) {
-    color: var(--cc-accent-hot);
+    color: var(--cc-accent);
+  }
+
+  .join-actions .btn {
+    flex: 1 1 auto;
+    min-width: min(100%, 10rem);
   }
 </style>

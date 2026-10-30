@@ -17,13 +17,14 @@ export const site = {
   ctfUrl: import.meta.env.PUBLIC_CTF_URL ?? "",
   ctfLabel: "CTF Arena",
   /** Public contact email — leave empty until a real address is published. */
-  email: "",
+  email: "cybercrew.community@gmail.com",
   /**
    * Community / social destinations. Only add real, verified URLs.
    * Empty keys are omitted from the UI until configured.
    */
   social: {
-    discord: "",
+    discord: "https://discord.gg/7XZkDjWBW",
+    whatsapp: "https://chat.whatsapp.com/C1ZtYEzlML53H5lwXgiCJY",
     github: "",
     linkedin: "",
     x: "",
@@ -38,3 +39,15 @@ export const site = {
 } as const;
 
 export type SocialNetwork = keyof typeof site.social;
+
+const socialLabels: Record<SocialNetwork, string> = {
+  discord: "Discord",
+  whatsapp: "WhatsApp",
+  github: "GitHub",
+  linkedin: "LinkedIn",
+  x: "X",
+};
+
+export function socialLabel(network: string): string {
+  return socialLabels[network as SocialNetwork] ?? network.charAt(0).toUpperCase() + network.slice(1);
+}

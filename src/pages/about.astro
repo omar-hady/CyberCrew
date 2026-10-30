@@ -52,21 +52,21 @@ const tracks = await getTracks();
 
       <aside class="panel block about-aside">
         <div class="about-mark">
+          <div class="about-glow" aria-hidden="true"></div>
           <picture>
-            <source srcset="/brand/logo-badge.webp" type="image/webp" />
+            <source srcset="/brand/logo-emblem.webp" type="image/webp" />
             <img
-              src="/brand/logo-badge.png"
-              alt="CyberCrew circular badge mark"
-              width="800"
-              height="800"
+              src="/brand/logo-icon.svg"
+              alt="CyberCrew emblem"
+              width="512"
+              height="495"
               class="about-logo"
               decoding="async"
             />
           </picture>
         </div>
         <p class="caption muted">
-          Official CyberCrew mark used across the site — circular badge with the crew emblem and
-          wordmark.
+          The CyberCrew emblem — the red geometric mark used across the platform.
         </p>
         <a class="btn" href="/tracks">Start with a track</a>
         <a class="btn btn-secondary" href="/library">Browse the library</a>
@@ -134,20 +134,38 @@ const tracks = await getTracks();
     gap: 0.85rem;
   }
 
+  .about-aside .btn {
+    width: 100%;
+  }
+
   .about-mark {
+    position: relative;
     display: grid;
     place-items: center;
-    padding: 0.75rem;
+    padding: 1rem;
     margin-bottom: 0.25rem;
   }
 
-  .about-logo {
-    width: min(100%, 13.5rem);
-    height: auto;
-    aspect-ratio: 1;
-    object-fit: contain;
+  .about-glow {
+    position: absolute;
+    inset: 18%;
     border-radius: 50%;
-    box-shadow: var(--shadow-glow);
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--cc-accent) 18%, transparent),
+      transparent 70%
+    );
+    filter: blur(16px);
+    pointer-events: none;
+  }
+
+  .about-logo {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 10.5rem);
+    height: auto;
+    aspect-ratio: 512 / 495;
+    object-fit: contain;
   }
 
   .caption {

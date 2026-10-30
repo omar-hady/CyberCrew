@@ -54,16 +54,11 @@ const journey = [
     <div class="container reveal">
       <p class="eyebrow">What is CyberCrew</p>
       <div class="intro-grid">
-        <h2 id="intro-title">A crew for practical cybersecurity learning</h2>
+        <h2 id="intro-title">Practical cybersecurity learning, together</h2>
         <div class="prose">
           <p class="muted">
-            CyberCrew brings learners together around structured tracks, shared resources,
-            workshops, and challenge practice. The emphasis is curiosity with discipline —
-            ethics, methodology, and community knowledge over hype.
-          </p>
-          <p class="muted">
-            Content on this site is managed as static files so organizers can publish through
-            Decap CMS without running an application backend for everyday updates.
+            Structured tracks, a shared resource library, community sessions, and CTF practice —
+            with ethics and methodology first, not hype.
           </p>
           <a class="btn btn-secondary" href="/about">About the community</a>
         </div>
@@ -104,8 +99,7 @@ const journey = [
         <p class="eyebrow">Learning journey</p>
         <h2 id="journey-title">A simple progression model</h2>
         <p class="muted lede">
-          No fabricated student counts or certificates — just a clear way to move from
-          orientation to deliberate practice.
+          A clear path from orientation to deliberate practice — no fake metrics or certificates.
         </p>
       </div>
       <ol class="journey-list">
@@ -158,8 +152,7 @@ const journey = [
         <p class="eyebrow">Community</p>
         <h2 id="community-title">Sessions, workshops, and updates</h2>
         <p class="muted">
-          Workshops, practice sessions, and library updates land here first. Confirm dates in each
-          post before planning attendance.
+          Workshops, practice nights, and library updates. Confirm dates in each post before you plan around them.
         </p>
         <a class="btn" href="/community">Community hub</a>
       </div>
@@ -186,8 +179,7 @@ const journey = [
       <div class="cta-panel panel">
         <h2 id="cta-title">Ready to train with intention?</h2>
         <p class="muted">
-          Explore a track, pull resources from the library, then practice in the CTF Arena
-          when the external platform URL is configured.
+          Pick a track, use the library, then practice in the CTF Arena when the platform link is live.
         </p>
         <div class="actions">
           <a class="btn" href="/tracks">Choose a track</a>
@@ -207,10 +199,10 @@ const journey = [
   .signals {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.55rem 1.35rem;
+    gap: 0.45rem 1.15rem;
     font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.18em;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--cc-text-faint);
   }
@@ -269,8 +261,9 @@ const journey = [
   .journey-item {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 1rem;
-    padding: 1.2rem 1.25rem;
+    gap: 0.85rem;
+    padding: 1.1rem 1.15rem;
+    min-width: 0;
   }
 
   .journey-item .step {
@@ -333,17 +326,13 @@ const journey = [
   }
 
   .cta-panel {
-    padding: clamp(1.75rem, 4vw, 2.75rem);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
     text-align: center;
-    background:
-      radial-gradient(ellipse 70% 80% at 50% 0%, rgba(238, 34, 39, 0.1), transparent 55%),
-      var(--cc-surface);
+    background: var(--cc-surface);
   }
 
   .community-band .band {
-    background:
-      linear-gradient(135deg, rgba(238, 34, 39, 0.06), transparent 42%),
-      var(--cc-surface);
+    background: var(--cc-surface);
   }
 
   .cta-panel h2 {
@@ -360,6 +349,16 @@ const journey = [
     flex-wrap: wrap;
     gap: 0.75rem;
     justify-content: center;
+  }
+
+  .section-head .btn {
+    width: 100%;
+  }
+
+  @media (min-width: 480px) {
+    .section-head .btn {
+      width: auto;
+    }
   }
 
   @media (min-width: 860px) {

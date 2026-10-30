@@ -144,6 +144,10 @@ const learningResourceLd = {
     border-collapse: collapse;
     font-size: 0.92rem;
     margin: 1rem 0;
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .body :global(th),
@@ -164,7 +168,12 @@ const learningResourceLd = {
   }
 
   .body :global(a) {
-    color: var(--cc-accent-hot);
+    color: var(--cc-accent);
+  }
+
+  .actions .btn {
+    flex: 1 1 auto;
+    min-width: min(100%, 10rem);
   }
 
   .tag-row {
