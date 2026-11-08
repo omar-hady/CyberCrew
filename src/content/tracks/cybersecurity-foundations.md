@@ -1,4 +1,5 @@
 ---
+pathId: cybersecurity-foundations
 title: Cybersecurity Foundations
 short: Technical preparation for people with little or no security background.
 level: Beginner preparation

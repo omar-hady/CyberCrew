@@ -3,7 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import PathStageResource from "../../components/PathStageResource.astro";
 import PathStageSuggestion from "../../components/PathStageSuggestion.astro";
 import ResourceCard from "../../components/ResourceCard.astro";
-import { getCollection, render } from "astro:content";
+import { render } from "astro:content";
 import {
   countStagedResources,
   focusLabel,
@@ -16,7 +16,7 @@ import {
 } from "../../lib/tracks";
 
 export async function getStaticPaths() {
-  const tracks = await getCollection("tracks");
+  const tracks = await getTracks();
   return tracks.map((track) => ({
     params: { slug: track.id },
     props: { track },

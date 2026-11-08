@@ -2,18 +2,22 @@
 import type { Resource } from "../lib/resources";
 import {
   difficultyLabel,
+  getTrackLabels,
   resourceHref,
-  trackLabel,
+  resolveTrackLabel,
   typeLabel,
 } from "../lib/resources";
 
 interface Props {
   resource: Resource;
+  trackLabels?: Record<string, string>;
 }
 
-const { resource } = Astro.props;
+const { resource, trackLabels } = Astro.props;
 const { data } = resource;
 const href = resourceHref(resource);
+const labels = trackLabels ?? (await getTrackLabels());
+const pathLabel = resolveTrackLabel(data.track, labels);
 ---
 
 <article class="resource-card panel">
@@ -34,7 +38,7 @@ const href = resourceHref(resource);
   </h3>
   <p>{data.description}</p>
   <div class="foot">
-    <span>{trackLabel[data.track]}</span>
+    <span>{pathLabel}</span>
     <span class="more" aria-hidden="true">View</span>
   </div>
 </article>

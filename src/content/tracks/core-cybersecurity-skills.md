@@ -1,4 +1,5 @@
 ---
+pathId: core-cybersecurity-skills
 title: Core Cybersecurity Skills
 short: Shared knowledge every specialist needs before choosing Red Team, Blue Team, or CTF.
 level: Beginner → Intermediate

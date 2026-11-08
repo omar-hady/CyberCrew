@@ -1,4 +1,5 @@
 ---
+pathId: soc-blue-team
 title: Blue Team
 short: Detection, triage, hunting, and defensive operations.
 level: Intermediate

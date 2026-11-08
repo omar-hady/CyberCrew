@@ -1,4 +1,5 @@
 ---
+pathId: ctf-learning
 title: CTF
 short: Challenge-driven practice across common CTF categories.
 level: Intermediate → Advanced

@@ -72,16 +72,13 @@ collections:
       - { label: Description, name: description, widget: text }
       - label: Learning path
         name: track
-        widget: select
-        options:
-          - { label: Cybersecurity Foundations, value: cybersecurity-foundations }
-          - { label: Core Cybersecurity Skills, value: core-cybersecurity-skills }
-          - { label: Penetration Testing (Red Team), value: penetration-testing }
-          - { label: "SOC & Blue Team", value: soc-blue-team }
-          - { label: Malware Analysis (Optional depth), value: malware-analysis }
-          - { label: CTF Learning, value: ctf-learning }
-          - { label: General, value: general }
-        hint: Tags the resource for library filters. To place it inside a path stage, also attach it under Learning Paths → Stages → Resources.
+        widget: relation
+        collection: tracks
+        search_fields: [title, short, pathId]
+        value_field: "{{slug}}"
+        display_fields: [title]
+        options_length: 50
+        hint: Tags the resource for library filters (uses the path’s slug/ID). New Learning Paths appear here automatically. To place a resource inside a path stage, also attach it under Learning Paths → Stages → Resources. Deleting a path does not delete library resources.
       - label: Difficulty
         name: difficulty
         widget: select
@@ -158,16 +155,33 @@ collections:
     label: Learning Paths
     label_singular: Learning Path
     folder: src/content/tracks
-    create: false
-    slug: "{{slug}}"
+    create: true
+    delete: true
+    slug: "{{fields.pathId}}"
     extension: md
     format: frontmatter
+    identifier_field: pathId
     summary: "{{title}} — {{journeyLevel}} / {{focus}}"
+    sortable_fields: [order, title, journeyLevel, focus]
+    description: >-
+      Full learning-path entries (Markdown). Create adds a new path file; Delete removes
+      only that path file (library Resources are kept). Set Order so the hub journey sorts
+      correctly. Path ID becomes the public URL slug (/tracks/<path-id>).
     fields:
+      - label: Path ID
+        name: pathId
+        widget: string
+        pattern: ['^[a-z0-9]+(?:-[a-z0-9]+)*$', "Use lowercase letters, numbers, and hyphens only (e.g. web-security-basics)"]
+        hint: Unique URL slug and filename. Set carefully on create — changing it renames /tracks/<id> and can break bookmarks or resource tags that still point at the old ID.
       - { label: Title, name: title, widget: string }
       - { label: Short description, name: short, widget: text }
       - { label: Level label, name: level, widget: string }
-      - { label: Order, name: order, widget: number, value_type: int }
+      - label: Order
+        name: order
+        widget: number
+        value_type: int
+        default: 100
+        hint: Lower numbers appear first on the website journey (Foundations → Core → specializations). Use gaps (10, 20, 30…) so new paths can be inserted cleanly.
       - label: Journey level
         name: journeyLevel
         widget: select
@@ -192,11 +206,12 @@ collections:
         name: stages
         widget: list
         summary: "{{fields.title}}"
-        hint: Ordered learning stages. Attach CyberCrew library Resources by slug. Use Suggestions for external recommendations (CS50, MDN, etc.).
+        hint: Ordered learning stages. Attach CyberCrew library Resources by slug. Use Suggestions for external recommendations (CS50, MDN, etc.). Removing a stage or path does not delete the linked Resources.
         fields:
           - label: Stage ID
             name: id
             widget: string
+            pattern: ['^[a-z0-9]+(?:-[a-z0-9]+)*$', "Use lowercase letters, numbers, and hyphens only"]
             hint: Stable URL anchor slug (lowercase, hyphens). Example — foundations-and-ethics
           - { label: Title, name: title, widget: string }
           - { label: Description, name: description, widget: text }
@@ -217,7 +232,7 @@ collections:
             search_fields: [title, description]
             value_field: "{{slug}}"
             display_fields: [title]
-            hint: Pick published library resources for this stage. Leave empty if content is still forthcoming.
+            hint: Pick published library resources for this stage. Leave empty if content is still forthcoming. These are references only — deleting this path will not delete these resources.
           - label: External suggestions
             name: suggestions
             widget: list

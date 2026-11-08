@@ -59,12 +59,24 @@ export const typeLabel: Record<string, string> = {
   session: "Session",
 };
 
-export const trackLabel: Record<string, string> = {
-  "cybersecurity-foundations": "Cybersecurity Foundations",
-  "core-cybersecurity-skills": "Core Cybersecurity Skills",
-  "penetration-testing": "Red Team",
-  "soc-blue-team": "Blue Team",
-  "malware-analysis": "Malware Analysis",
-  "ctf-learning": "CTF",
-  general: "General",
-};
+/**
+ * Display labels for resource.track tags, derived from Learning Path titles
+ * so newly created CMS paths appear in the library without code changes.
+ */
+export async function getTrackLabels(): Promise<Record<string, string>> {
+  const tracks = await getCollection("tracks");
+  const labels: Record<string, string> = { general: "General" };
+
+  for (const track of tracks.sort((a, b) => a.data.order - b.data.order)) {
+    labels[track.id] = track.data.title;
+  }
+
+  return labels;
+}
+
+export function resolveTrackLabel(
+  trackId: string,
+  labels: Record<string, string>,
+): string {
+  return labels[trackId] ?? trackId;
+}

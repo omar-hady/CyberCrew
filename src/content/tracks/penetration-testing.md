@@ -1,4 +1,5 @@
 ---
+pathId: penetration-testing
 title: Red Team
 short: Offensive methodology, recon, exploitation, and reporting in ethical lab environments.
 level: Intermediate → Advanced

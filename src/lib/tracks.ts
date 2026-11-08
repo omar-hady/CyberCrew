@@ -56,7 +56,19 @@ export const focusBlurb: Record<PathFocus, string> = {
 /** Tracks ordered for listings (home, /tracks, footer, about). */
 export async function getTracks() {
   const tracks = await getCollection("tracks");
-  return tracks.sort((a, b) => a.data.order - b.data.order);
+  return tracks
+    .filter((track) => {
+      // Decap writes pathId into frontmatter and uses it as the filename.
+      // Skip mismatched entries rather than publishing broken URLs.
+      if (track.data.pathId !== track.id) {
+        console.warn(
+          `[tracks] Skipping "${track.id}": pathId "${track.data.pathId}" does not match filename.`,
+        );
+        return false;
+      }
+      return true;
+    })
+    .sort((a, b) => a.data.order - b.data.order);
 }
 
 export function getTracksByJourney(tracks: Track[], level: JourneyLevel) {

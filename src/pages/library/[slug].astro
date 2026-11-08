@@ -3,9 +3,10 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection, render } from "astro:content";
 import {
   difficultyLabel,
+  getTrackLabels,
   resourceAction,
   resourceSlug,
-  trackLabel,
+  resolveTrackLabel,
   typeLabel,
 } from "../../lib/resources";
 
@@ -28,6 +29,7 @@ const { resource } = Astro.props;
 const { Content } = await render(resource);
 const action = resourceAction(resource);
 const { data } = resource;
+const pathLabel = resolveTrackLabel(data.track, await getTrackLabels());
 
 const learningResourceLd = {
   "@context": "https://schema.org",
@@ -51,7 +53,7 @@ const learningResourceLd = {
       <div class="tags">
         <span class="tag tag-accent">{typeLabel[data.type]}</span>
         <span class="tag">{difficultyLabel[data.difficulty]}</span>
-        <span class="tag">{trackLabel[data.track]}</span>
+        <span class="tag">{pathLabel}</span>
         {data.featured && <span class="tag">Featured</span>}
       </div>
       <h1>{data.title}</h1>
