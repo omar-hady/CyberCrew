@@ -1,10 +1,8 @@
 ---
-title: Linux Command Line Fundamentals for Beginners   Copy
-description: >-
-  Learn the Linux command line from scratch. Understand essential terminal
-  commands, file and directory management, permissions, and basic system
-  navigation before starting your cybersecurity journey.
-   Copy description
+title: "Linux Command Line Fundamentals for Beginners  "
+description: Learn the Linux command line from scratch. Understand essential
+  terminal commands, file and directory management, permissions, and basic
+  system navigation before starting your cybersecurity journey.
 track: cybersecurity-foundations
 difficulty: beginner
 type: documentation
