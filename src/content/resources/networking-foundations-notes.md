@@ -1,7 +1,7 @@
 ---
 title: Networking Foundations for Security Learners
 description: Practical TCP/IP, ports, DNS, and packet literacy notes for pentest and SOC beginners working in labs.
-track: general
+track: cybersecurity-foundations
 difficulty: beginner
 type: documentation
 tags:

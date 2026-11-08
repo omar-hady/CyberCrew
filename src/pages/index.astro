@@ -4,10 +4,11 @@ import Hero from "../components/home/Hero.astro";
 import TrackCard from "../components/TrackCard.astro";
 import ResourceCard from "../components/ResourceCard.astro";
 import { getFeaturedResources } from "../lib/resources";
-import { getTracks } from "../lib/tracks";
+import { getLearningJourney, getTracks } from "../lib/tracks";
 import { getCollection } from "astro:content";
 
 const tracks = await getTracks();
+const { foundations, core, specializations } = getLearningJourney(tracks);
 const featured = await getFeaturedResources(4);
 const announcements = (await getCollection("announcements"))
   .filter((a) => a.data.published)
@@ -17,23 +18,27 @@ const announcements = (await getCollection("announcements"))
 const journey = [
   {
     step: "01",
-    title: "Choose a track",
-    text: "Pick a focus area that matches your current curiosity and experience.",
+    title: "Foundations",
+    text: "Prepare with Linux, networking, and basic computing — skip only what you already know.",
+    href: foundations ? `/tracks/${foundations.id}` : "/tracks",
   },
   {
     step: "02",
-    title: "Study the roadmap",
-    text: "Follow ordered milestones instead of jumping randomly between tools.",
+    title: "Core skills",
+    text: "Build shared ethics, web, tooling, and methodology before specializing.",
+    href: core ? `/tracks/${core.id}` : "/tracks",
   },
   {
     step: "03",
-    title: "Use the library",
-    text: "Filter resources by type and difficulty as you progress.",
+    title: "Specialize",
+    text: "Choose Red Team, Blue Team, or CTF and follow that path’s ordered stages.",
+    href: "/tracks#specialize",
   },
   {
     step: "04",
-    title: "Practice in the arena",
-    text: "Apply skills in the community CTF platform when it is linked.",
+    title: "Practice",
+    text: "Use the library and CTF Arena when the platform link is live.",
+    href: "/ctf",
   },
 ];
 ---
@@ -43,9 +48,10 @@ const journey = [
 
   <section class="signals-bar" aria-label="Learning focus areas">
     <div class="container-wide signals">
-      <span>Pentest</span>
+      <span>Foundations</span>
+      <span>Core skills</span>
+      <span>Red Team</span>
       <span>Blue Team</span>
-      <span>Malware</span>
       <span>CTF</span>
     </div>
   </section>
@@ -57,8 +63,8 @@ const journey = [
         <h2 id="intro-title">Practical cybersecurity learning, together</h2>
         <div class="prose">
           <p class="muted">
-            Structured tracks, a shared resource library, community sessions, and CTF practice —
-            with ethics and methodology first, not hype.
+            A clear journey from beginner foundations to specialization, a shared resource library,
+            community sessions, and CTF practice — with ethics and methodology first, not hype.
           </p>
           <a class="btn btn-secondary" href="/about">About the community</a>
         </div>
@@ -70,26 +76,69 @@ const journey = [
     <div class="container-wide">
       <div class="section-head reveal">
         <div>
-          <p class="eyebrow">Learning tracks</p>
-          <h2 id="tracks-title">Four paths. One crew.</h2>
+          <p class="eyebrow">Learning paths</p>
+          <h2 id="tracks-title">Start here. Then specialize.</h2>
         </div>
-        <a class="btn btn-secondary" href="/tracks">All tracks</a>
+        <a class="btn btn-secondary" href="/tracks">Full journey</a>
       </div>
-      <div class="grid-4">
-        {
-          tracks.map((t, i) => (
-            <div class="reveal" style={`transition-delay:${i * 60}ms`}>
-              <TrackCard
-                slug={t.id}
-                title={t.data.title}
-                short={t.data.short}
-                level={t.data.level}
-                index={i}
-              />
+
+      {
+        (foundations || core) && (
+          <div class="prep-grid">
+            {foundations && (
+              <div class="reveal">
+                <TrackCard
+                  slug={foundations.id}
+                  title={foundations.data.title}
+                  short={foundations.data.short}
+                  level={foundations.data.level}
+                  index={0}
+                  journeyLevel={foundations.data.journeyLevel}
+                  stageCount={foundations.data.stages.length}
+                  cta="Start here →"
+                />
+              </div>
+            )}
+            {core && (
+              <div class="reveal" style="transition-delay:60ms">
+                <TrackCard
+                  slug={core.id}
+                  title={core.data.title}
+                  short={core.data.short}
+                  level={core.data.level}
+                  index={1}
+                  journeyLevel={core.data.journeyLevel}
+                  stageCount={core.data.stages.length}
+                />
+              </div>
+            )}
+          </div>
+        )
+      }
+
+      {
+        specializations.length > 0 && (
+          <div class="specs-block">
+            <p class="specs-label muted">Then choose a specialization</p>
+            <div class="grid-3">
+              {specializations.map((t, i) => (
+                <div class="reveal" style={`transition-delay:${i * 60}ms`}>
+                  <TrackCard
+                    slug={t.id}
+                    title={t.data.title}
+                    short={t.data.short}
+                    level={t.data.level}
+                    index={i}
+                    focus={t.data.focus}
+                    journeyLevel={t.data.journeyLevel}
+                    stageCount={t.data.stages.length}
+                  />
+                </div>
+              ))}
             </div>
-          ))
-        }
-      </div>
+          </div>
+        )
+      }
     </div>
   </section>
 
@@ -99,7 +148,8 @@ const journey = [
         <p class="eyebrow">Learning journey</p>
         <h2 id="journey-title">A simple progression model</h2>
         <p class="muted lede">
-          A clear path from orientation to deliberate practice — no fake metrics or certificates.
+          Foundations first, then shared core skills, then a specialization — no fake metrics or
+          certificates.
         </p>
       </div>
       <ol class="journey-list">
@@ -108,7 +158,9 @@ const journey = [
             <li class="journey-item panel reveal" style={`transition-delay:${i * 70}ms`}>
               <span class="step">{item.step}</span>
               <div>
-                <h3>{item.title}</h3>
+                <h3>
+                  <a href={item.href}>{item.title}</a>
+                </h3>
                 <p>{item.text}</p>
               </div>
             </li>
@@ -179,10 +231,10 @@ const journey = [
       <div class="cta-panel panel">
         <h2 id="cta-title">Ready to train with intention?</h2>
         <p class="muted">
-          Pick a track, use the library, then practice in the CTF Arena when the platform link is live.
+          Start with Foundations, build Core Skills, then specialize — and practice in the CTF Arena when the platform link is live.
         </p>
         <div class="actions">
-          <a class="btn" href="/tracks">Choose a track</a>
+          <a class="btn" href="/tracks">Open the journey</a>
           <a class="btn btn-secondary" href="/ctf">CTF Arena intro</a>
         </div>
       </div>
@@ -246,6 +298,24 @@ const journey = [
     margin: 0;
   }
 
+  .prep-grid,
+  .grid-3 {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .specs-block {
+    margin-top: var(--space-6);
+  }
+
+  .specs-label {
+    margin: 0 0 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
   .lede {
     max-width: 40rem;
   }
@@ -276,6 +346,15 @@ const journey = [
   .journey-item h3 {
     margin: 0 0 0.35rem;
     font-size: 1.15rem;
+  }
+
+  .journey-item h3 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .journey-item h3 a:hover {
+    color: var(--cc-accent);
   }
 
   .journey-item p {
@@ -358,6 +437,16 @@ const journey = [
   @media (min-width: 480px) {
     .section-head .btn {
       width: auto;
+    }
+  }
+
+  @media (min-width: 720px) {
+    .prep-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 

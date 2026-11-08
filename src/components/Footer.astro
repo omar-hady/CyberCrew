@@ -1,9 +1,9 @@
 ---
 import CommunityLinks from "./CommunityLinks.astro";
 import { site } from "../data/site";
-import { getTracks } from "../lib/tracks";
+import { getJourneyListing, getTracks } from "../lib/tracks";
 
-const tracks = await getTracks();
+const tracks = getJourneyListing(await getTracks());
 const hasContact =
   Boolean(site.email.trim()) ||
   Object.values(site.social).some((href) => Boolean(href?.trim()));
@@ -43,7 +43,7 @@ const hasContact =
     </div>
 
     <div>
-      <h2 class="footer-heading">Learning tracks</h2>
+      <h2 class="footer-heading">Learning paths</h2>
       <ul class="footer-links">
         {
           tracks.map((t) => (

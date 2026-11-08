@@ -3,14 +3,14 @@
  * Set PUBLIC_CTF_URL in your environment / host settings when the CTF platform URL is known.
  * Do not invent a CTF URL — leave empty until the real platform address is available.
  *
- * Learning track copy lives in `src/content/tracks/` (CMS-editable) and is loaded via
- * `getTracks()` so listings stay in sync with track detail pages.
+ * Learning path copy lives in `src/content/tracks/` (CMS-editable) and is loaded via
+ * `getTracks()` so listings stay in sync with path detail pages.
  */
 export const site = {
   name: "CyberCrew",
   tagline: "A cybersecurity learning community built for curious minds.",
   description:
-    "CyberCrew is a hands-on cybersecurity learning community focused on practical skills across penetration testing, blue team operations, malware analysis, and CTF challenges.",
+    "CyberCrew is a hands-on cybersecurity learning community that takes learners from foundations and core skills into Red Team, Blue Team, and CTF specializations.",
   /** Leave empty until a real production domain is confirmed. */
   url: import.meta.env.PUBLIC_SITE_URL ?? "",
   /** External CTF platform — never invent this URL. */
@@ -30,7 +30,7 @@ export const site = {
     x: "",
   },
   nav: [
-    { label: "Tracks", href: "/tracks" },
+    { label: "Paths", href: "/tracks" },
     { label: "Library", href: "/library" },
     { label: "Community", href: "/community" },
     { label: "CTF Arena", href: "/ctf" },

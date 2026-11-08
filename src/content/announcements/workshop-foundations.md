@@ -4,7 +4,7 @@ summary: Recurring community workshops covering Linux, networking, and security 
 date: 2026-10-15
 kind: workshop
 published: true
-link: /library?track=general
+link: /library?track=cybersecurity-foundations
 ---
 
-Workshops focus on practical CLI, networking literacy, and ethical methodology before deeper track work. Browse the general library filter for related session notes, and watch community updates for the next confirmed session time.
+Workshops focus on practical CLI, networking literacy, and ethical methodology before deeper track work. Browse the Foundations library filter for related session notes, and watch community updates for the next confirmed session time.

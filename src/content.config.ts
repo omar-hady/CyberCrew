@@ -11,18 +11,39 @@ const resourceType = z.enum([
   "session",
 ]);
 const track = z.enum([
+  "cybersecurity-foundations",
+  "core-cybersecurity-skills",
   "penetration-testing",
   "soc-blue-team",
   "malware-analysis",
   "ctf-learning",
   "general",
 ]);
+const pathFocus = z.enum(["red-team", "blue-team", "ctf", "specialized"]);
+const journeyLevel = z.enum(["foundations", "core", "specialization"]);
+const stageImportance = z.enum(["essential", "optional"]);
 
 /** Decap often serializes cleared optional fields as null — coerce to undefined. */
 const optionalString = z
   .union([z.string(), z.null()])
   .optional()
   .transform((v) => v ?? undefined);
+
+const stringList = z
+  .union([z.array(z.string()), z.null()])
+  .optional()
+  .transform((v) => v ?? []);
+
+const stageSuggestion = z.object({
+  title: z.string(),
+  url: optionalString,
+  note: optionalString,
+});
+
+const suggestionList = z
+  .union([z.array(stageSuggestion), z.null()])
+  .optional()
+  .transform((v) => v ?? []);
 
 const resources = defineCollection({
   // Flat files only — matches Decap `folder` + `slug: "{{slug}}"`.
@@ -33,10 +54,7 @@ const resources = defineCollection({
     track: track,
     difficulty: difficulty,
     type: resourceType,
-    tags: z
-      .union([z.array(z.string()), z.null()])
-      .optional()
-      .transform((v) => v ?? []),
+    tags: stringList,
     url: optionalString,
     file: optionalString,
     thumbnail: optionalString,
@@ -54,17 +72,24 @@ const tracks = defineCollection({
     short: z.string(),
     level: z.string(),
     order: z.number(),
+    /** Where this path sits in the Foundations → Core → Specialize journey. */
+    journeyLevel,
+    /** Specialization identity for badges; foundations/core use specialized. */
+    focus: pathFocus,
     objectives: z.array(z.string()),
-    roadmap: z.array(
+    /** Ordered learning stages; resources are content collection slugs. */
+    stages: z.array(
       z.object({
+        id: z.string().min(1),
         title: z.string(),
         description: z.string(),
+        importance: stageImportance.default("essential"),
+        resources: stringList,
+        /** External recommendations — not CyberCrew library entries. */
+        suggestions: suggestionList,
       }),
     ),
-    tools: z
-      .union([z.array(z.string()), z.null()])
-      .optional()
-      .transform((v) => v ?? []),
+    tools: stringList,
   }),
 });
 

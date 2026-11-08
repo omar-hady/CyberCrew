@@ -1,8 +1,19 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import PathStageResource from "../../components/PathStageResource.astro";
+import PathStageSuggestion from "../../components/PathStageSuggestion.astro";
 import ResourceCard from "../../components/ResourceCard.astro";
 import { getCollection, render } from "astro:content";
-import { getResourcesByTrack } from "../../lib/resources";
+import {
+  countStagedResources,
+  focusLabel,
+  getJourneySiblings,
+  getPathNextStep,
+  getTracks,
+  getUnstagedTrackResources,
+  journeyLevelLabel,
+  resolveTrackStages,
+} from "../../lib/tracks";
 
 export async function getStaticPaths() {
   const tracks = await getCollection("tracks");
@@ -14,96 +25,256 @@ export async function getStaticPaths() {
 
 const { track } = Astro.props;
 const { Content } = await render(track);
-const resources = await getResourcesByTrack(track.id);
+const [stages, unstaged, allTracks] = await Promise.all([
+  resolveTrackStages(track),
+  getUnstagedTrackResources(track),
+  getTracks(),
+]);
+
+const stagedCount = countStagedResources(stages);
+const { prev, next } = getJourneySiblings(track, allTracks);
+const pathNext = getPathNextStep(track, allTracks);
+const bodyText = track.body?.trim() ?? "";
+const showBody = bodyText.length > 0;
+const levelLabel = journeyLevelLabel[track.data.journeyLevel];
+const focus =
+  track.data.journeyLevel === "specialization" && track.data.focus !== "specialized"
+    ? focusLabel[track.data.focus]
+    : null;
+const essentialCount = stages.filter((s) => s.importance === "essential").length;
+const optionalCount = stages.filter((s) => s.importance === "optional").length;
 ---
 
-<BaseLayout
-  title={track.data.title}
-  description={track.data.short}
->
+<BaseLayout title={track.data.title} description={track.data.short}>
   <section class="page-hero">
     <div class="container">
-      <p class="eyebrow">Learning track</p>
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/tracks">Learning paths</a>
+        <span aria-hidden="true">/</span>
+        <span>{track.data.title}</span>
+      </nav>
+      <p class="eyebrow">
+        {levelLabel}
+        {focus ? ` · ${focus}` : ""}
+      </p>
       <h1>{track.data.title}</h1>
       <p class="lede">{track.data.short}</p>
       <div class="meta-row">
-        <span class="tag tag-accent">{track.data.level}</span>
-        <a class="btn btn-secondary" href={`/library?track=${track.id}`}>Filter library</a>
+        <span class="tag tag-accent">{levelLabel}</span>
+        {focus && <span class="tag">{focus}</span>}
+        <span class="tag">{track.data.level}</span>
+        <span class="tag">{stages.length} stages</span>
+        {
+          optionalCount > 0 && (
+            <span class="tag">
+              {essentialCount} essential · {optionalCount} optional
+            </span>
+          )
+        }
+        {stagedCount > 0 && <span class="tag">{stagedCount} CyberCrew resources</span>}
+      </div>
+      <div class="hero-actions">
+        {
+          stages[0] && (
+            <a class="btn" href={`#stage-${stages[0].id}`}>
+              Start with stage 01
+            </a>
+          )
+        }
+        <a class="btn btn-secondary" href="/tracks">Journey map</a>
       </div>
     </div>
   </section>
 
   <section class="section-sm">
-    <div class="container track-layout">
-      <article class="panel prose-panel">
-        <h2>Introduction</h2>
-        <div class="prose body">
-          <Content />
-        </div>
-
-        <h2>Learning objectives</h2>
-        <ul class="objectives">
-          {track.data.objectives.map((o) => <li>{o}</li>)}
-        </ul>
-
-        <h2>Roadmap</h2>
-        <ol class="roadmap">
+    <div class="container path-layout">
+      <nav class="stage-nav panel" aria-label="Path stages">
+        <p class="nav-label">Stages</p>
+        <ol>
           {
-            track.data.roadmap.map((step, i) => (
+            stages.map((stage, i) => (
               <li>
-                <span class="num">{String(i + 1).padStart(2, "0")}</span>
-                <div>
-                  <h3>{step.title}</h3>
-                  <p>{step.description}</p>
-                </div>
+                <a href={`#stage-${stage.id}`}>
+                  <span class="nav-num">{String(i + 1).padStart(2, "0")}</span>
+                  <span class="nav-copy">
+                    <span class="nav-title">{stage.title}</span>
+                    <span class="nav-count">
+                      {stage.importance === "optional" ? "Optional" : "Essential"}
+                      {stage.resources.length > 0 &&
+                        ` · ${stage.resources.length} resource${stage.resources.length === 1 ? "" : "s"}`}
+                      {stage.suggestions.length > 0 &&
+                        ` · ${stage.suggestions.length} suggestion${stage.suggestions.length === 1 ? "" : "s"}`}
+                    </span>
+                  </span>
+                </a>
               </li>
             ))
           }
         </ol>
+        <div class="nav-actions">
+          <a class="btn btn-secondary" href={pathNext.href}>
+            {pathNext.label}
+          </a>
+          {track.id === "ctf-learning" && (
+            <a class="btn btn-secondary" href="/ctf">
+              CTF Arena
+            </a>
+          )}
+          <a class="btn btn-ghost" href="/tracks">All paths</a>
+        </div>
+      </nav>
 
+      <div class="path-main">
         {
-          track.data.tools.length > 0 && (
-            <>
-              <h2>Tools & references</h2>
-              <ul class="tools">
-                {track.data.tools.map((t) => (
-                  <li>{t}</li>
-                ))}
-              </ul>
-            </>
+          showBody && (
+            <article class="panel prose-panel note-panel">
+              <h2>Before you begin</h2>
+              <div class="prose body">
+                <Content />
+              </div>
+            </article>
           )
         }
-      </article>
 
-      <aside class="aside">
-        <div class="panel aside-card">
-          <h2>Next actions</h2>
-          <a class="btn" href={`/library?track=${track.id}`}>Browse related resources</a>
-          <a class="btn btn-secondary" href="/ctf">CTF Arena</a>
-          <a class="btn btn-secondary" href="/tracks">All tracks</a>
-        </div>
-      </aside>
+        <section class="journey" aria-labelledby="journey-title">
+          <div class="journey-head">
+            <p class="eyebrow">Ordered journey</p>
+            <h2 id="journey-title">Stages</h2>
+            <p class="muted">
+              Work top to bottom.
+              {
+                optionalCount > 0
+                  ? " Essential stages are required for most learners; optional stages fill background gaps."
+                  : " Complete each stage before moving on when you are new to this path."
+              }
+              CyberCrew library materials are listed separately from external suggestions.
+            </p>
+          </div>
+
+          <ol class="stages">
+            {
+              stages.map((stage, i) => (
+                <li class="stage panel" id={`stage-${stage.id}`}>
+                  <div class="stage-top">
+                    <span class="stage-num" aria-hidden="true">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <div class="stage-copy">
+                      <div class="stage-badges">
+                        <span class:list={["tag", stage.importance === "essential" && "tag-accent"]}>
+                          {stage.importance === "optional" ? "Optional" : "Essential"}
+                        </span>
+                      </div>
+                      <h3>{stage.title}</h3>
+                      <p>{stage.description}</p>
+                    </div>
+                  </div>
+
+                  {stage.resources.length > 0 && (
+                    <div class="stage-block">
+                      <p class="block-label">CyberCrew resources</p>
+                      <ul class="stage-resources">
+                        {stage.resources.map((resource) => (
+                          <li>
+                            <PathStageResource resource={resource} />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {stage.suggestions.length > 0 && (
+                    <div class="stage-block">
+                      <p class="block-label">External suggestions</p>
+                      <ul class="stage-resources">
+                        {stage.suggestions.map((suggestion) => (
+                          <li>
+                            <PathStageSuggestion
+                              title={suggestion.title}
+                              url={suggestion.url}
+                              note={suggestion.note}
+                            />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {stage.resources.length === 0 && stage.suggestions.length === 0 && (
+                    <p class="stage-empty">
+                      Materials for this stage will appear here when editors attach CyberCrew resources
+                      or external suggestions in the CMS.
+                    </p>
+                  )}
+
+                  <div class="stage-foot">
+                    {i < stages.length - 1 ? (
+                      <a class="next-link" href={`#stage-${stages[i + 1].id}`}>
+                        Next: {stages[i + 1].title} →
+                      </a>
+                    ) : (
+                      <a class="next-link" href="#path-next">
+                        {pathNext.label} →
+                      </a>
+                    )}
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </section>
+
+        <aside class="path-next panel" id="path-next" aria-labelledby="path-next-title">
+          <p class="eyebrow">Next step</p>
+          <h2 id="path-next-title">{pathNext.label}</h2>
+          <p class="muted">{pathNext.detail}</p>
+          <a class="btn" href={pathNext.href}>{pathNext.label}</a>
+        </aside>
+      </div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container-wide">
-      <div class="section-head">
-        <h2>Resources in this track</h2>
-        <a href={`/library?track=${track.id}`}>View in library →</a>
-      </div>
-      {
-        resources.length ? (
+  {
+    unstaged.length > 0 && (
+      <section class="section" aria-labelledby="more-resources-title">
+        <div class="container-wide">
+          <div class="section-head">
+            <h2 id="more-resources-title">More in this path</h2>
+            <a href={`/library?track=${track.id}`}>View in library →</a>
+          </div>
+          <p class="section-lede muted">
+            Published resources tagged to this path that are not yet placed in a stage.
+          </p>
           <div class="grid-2">
-            {resources.map((resource) => (
+            {unstaged.map((resource) => (
               <ResourceCard resource={resource} />
             ))}
           </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section-sm" aria-label="Other learning paths">
+    <div class="container path-siblings">
+      {
+        prev ? (
+          <a class="sibling panel" href={`/tracks/${prev.id}`}>
+            <span class="sibling-label">Previous in journey</span>
+            <span class="sibling-title">{prev.data.title}</span>
+          </a>
         ) : (
-          <div class="empty-state">
-            <strong>No published resources yet</strong>
-            Add materials for this track through Decap CMS.
-          </div>
+          <span class="sibling placeholder" aria-hidden="true" />
+        )
+      }
+      {
+        next ? (
+          <a class="sibling panel next" href={`/tracks/${next.id}`}>
+            <span class="sibling-label">Next in journey</span>
+            <span class="sibling-title">{next.data.title}</span>
+          </a>
+        ) : (
+          <span class="sibling placeholder" aria-hidden="true" />
         )
       }
     </div>
@@ -111,96 +282,268 @@ const resources = await getResourcesByTrack(track.id);
 </BaseLayout>
 
 <style>
-  .meta-row {
+  .crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    align-items: center;
+    margin: 0 0 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    color: var(--cc-text-faint);
+  }
+
+  .crumbs a {
+    color: var(--cc-text-muted);
+    text-decoration: none;
+  }
+
+  .crumbs a:hover {
+    color: var(--cc-accent);
+  }
+
+  .meta-row,
+  .hero-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
     align-items: center;
+  }
+
+  .meta-row {
     margin-top: 1.25rem;
   }
 
-  .track-layout {
+  .hero-actions {
+    margin-top: 1.35rem;
+  }
+
+  .path-layout {
     display: grid;
     gap: var(--space-5);
+  }
+
+  .stage-nav {
+    padding: 1.1rem 1.05rem;
+    height: fit-content;
+  }
+
+  .nav-label {
+    margin: 0 0 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cc-accent);
+  }
+
+  .stage-nav ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .stage-nav a {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.7rem;
+    padding: 0.55rem 0.45rem;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid transparent;
+  }
+
+  .stage-nav a:hover {
+    background: var(--cc-surface-2);
+    border-color: var(--cc-line);
+    color: inherit;
+  }
+
+  .nav-num {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--cc-accent);
+    padding-top: 0.15rem;
+  }
+
+  .nav-copy {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .nav-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--cc-paper-bright);
+    line-height: 1.25;
+  }
+
+  .nav-count {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+    color: var(--cc-text-faint);
+  }
+
+  .nav-actions {
+    display: grid;
+    gap: 0.55rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--cc-line);
+  }
+
+  .nav-actions .btn {
+    width: 100%;
+  }
+
+  .path-main {
+    display: grid;
+    gap: var(--space-5);
+    min-width: 0;
   }
 
   .prose-panel {
     padding: clamp(1.25rem, 3vw, 2rem);
   }
 
-  .prose-panel h2 {
-    margin: 1.75rem 0 0.85rem;
-    font-size: 1.35rem;
-  }
-
-  .prose-panel h2:first-child {
-    margin-top: 0;
+  .note-panel h2 {
+    margin: 0 0 0.85rem;
+    font-size: 1.2rem;
   }
 
   .body :global(p) {
     color: var(--cc-text-muted);
   }
 
-  .objectives,
-  .tools {
+  .journey-head {
+    margin-bottom: 1.25rem;
+  }
+
+  .journey-head h2 {
+    margin: 0 0 0.55rem;
+  }
+
+  .journey-head p {
     margin: 0;
-    padding-left: 1.15rem;
-    color: var(--cc-text-muted);
+    max-width: 42rem;
   }
 
-  .objectives li + li,
-  .tools li + li {
-    margin-top: 0.45rem;
-  }
-
-  .roadmap {
+  .stages {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 0.85rem;
+    gap: 1rem;
+    position: relative;
   }
 
-  .roadmap li {
+  .stage {
+    padding: clamp(1.1rem, 2.5vw, 1.45rem);
+    scroll-margin-top: calc(var(--header-h) + 1rem);
+  }
+
+  .stage-top {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 0.85rem;
-    padding: 0.9rem 0;
-    border-bottom: 1px solid var(--cc-line);
+    gap: 0.9rem;
+    margin-bottom: 1rem;
   }
 
-  .num {
+  .stage-num {
     font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
     color: var(--cc-accent);
-    font-size: 0.8rem;
+    padding-top: 0.35rem;
   }
 
-  .roadmap h3 {
-    margin: 0 0 0.3rem;
-    font-size: 1.05rem;
+  .stage-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.45rem;
   }
 
-  .roadmap p {
+  .stage-copy h3 {
+    margin: 0 0 0.35rem;
+    font-size: 1.2rem;
+  }
+
+  .stage-copy p {
     margin: 0;
     color: var(--cc-text-muted);
     font-size: 0.95rem;
   }
 
-  .aside-card {
-    padding: 1.15rem;
+  .stage-block + .stage-block {
+    margin-top: 1rem;
+  }
+
+  .block-label {
+    margin: 0 0 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cc-text-faint);
+  }
+
+  .stage-resources {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
-    gap: 0.7rem;
-    position: sticky;
-    top: calc(var(--header-h) + 1rem);
+    gap: 0.65rem;
   }
 
-  .aside-card .btn {
-    width: 100%;
+  .stage-empty {
+    margin: 0;
+    padding: 0.95rem 1rem;
+    border: 1px dashed var(--cc-line-strong);
+    background: var(--cc-surface-2);
+    color: var(--cc-text-muted);
+    font-size: 0.92rem;
   }
 
-  .aside-card h2 {
-    margin: 0 0 0.25rem;
-    font-size: 1.1rem;
+  .stage-foot {
+    margin-top: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--cc-line);
+  }
+
+  .next-link {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+  }
+
+  .path-next {
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    display: grid;
+    gap: 0.55rem;
+    scroll-margin-top: calc(var(--header-h) + 1rem);
+  }
+
+  .path-next h2 {
+    margin: 0;
+    font-size: 1.35rem;
+  }
+
+  .path-next p {
+    margin: 0;
+    max-width: 36rem;
+  }
+
+  .path-next .btn {
+    width: fit-content;
+    margin-top: 0.35rem;
   }
 
   .section-head {
@@ -209,7 +552,7 @@ const resources = await getResourcesByTrack(track.id);
     justify-content: space-between;
     align-items: baseline;
     gap: 0.75rem 1rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.65rem;
   }
 
   .section-head h2 {
@@ -222,10 +565,75 @@ const resources = await getResourcesByTrack(track.id);
     font-weight: 700;
   }
 
+  .section-lede {
+    margin: 0 0 1.25rem;
+    max-width: 40rem;
+  }
+
+  .path-siblings {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .sibling {
+    display: grid;
+    gap: 0.35rem;
+    padding: 1.05rem 1.15rem;
+    text-decoration: none;
+    color: inherit;
+    transition:
+      border-color var(--duration) var(--ease-out),
+      background var(--duration) var(--ease-out);
+  }
+
+  .sibling:hover {
+    border-color: color-mix(in srgb, var(--cc-accent) 35%, var(--cc-line));
+    background: var(--cc-surface-2);
+    color: inherit;
+  }
+
+  .sibling.placeholder {
+    display: none;
+  }
+
+  .sibling-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cc-text-faint);
+  }
+
+  .sibling-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--cc-paper-bright);
+  }
+
+  .sibling.next {
+    text-align: right;
+  }
+
   @media (min-width: 960px) {
-    .track-layout {
-      grid-template-columns: 1.7fr 0.7fr;
+    .path-layout {
+      grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
       align-items: start;
+    }
+
+    .stage-nav {
+      position: sticky;
+      top: calc(var(--header-h) + 1rem);
+    }
+
+    .path-siblings {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .sibling.placeholder {
+      display: block;
+      visibility: hidden;
+      border: 0;
+      background: transparent;
     }
   }
 </style>

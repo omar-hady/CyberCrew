@@ -1,39 +1,382 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import TrackCard from "../../components/TrackCard.astro";
-import { getTracks } from "../../lib/tracks";
+import {
+  focusBlurb,
+  focusLabel,
+  getLearningJourney,
+  getTracks,
+  journeyLevelBlurb,
+} from "../../lib/tracks";
 
 const tracks = await getTracks();
+const { foundations, core, specializations, optionalDepth } = getLearningJourney(tracks);
 ---
 
 <BaseLayout
-  title="Learning Tracks"
-  description="Explore CyberCrew learning tracks for penetration testing, SOC & blue team, malware analysis, and CTF practice."
+  title="Learning Paths"
+  description="A clear CyberCrew learning journey from Foundations to Core Skills to Red Team, Blue Team, or CTF specialization."
 >
-  <section class="page-hero">
+  <section class="page-hero paths-hero">
     <div class="container">
-      <p class="eyebrow">Curriculum paths</p>
-      <h1>Learning tracks</h1>
+      <p class="eyebrow">Learning journey</p>
+      <h1>From foundations to specialization</h1>
       <p class="lede">
-        Each track includes an introduction, objectives, an ordered roadmap, and matching library
-        resources. Depth grows as the community publishes.
+        One ordered path: prepare the basics, build shared cybersecurity skills, then choose Red Team,
+        Blue Team, or CTF. Start at step 1 unless you already have solid technical footing.
       </p>
+      {
+        foundations && (
+          <div class="hero-actions">
+            <a class="btn" href={`/tracks/${foundations.id}`}>
+              Start with Foundations
+            </a>
+            <a class="btn btn-secondary" href="#journey">
+              See the full journey
+            </a>
+          </div>
+        )
+      }
     </div>
   </section>
 
-  <section class="section-sm">
-    <div class="container-wide grid-2">
+  <section class="section-sm" id="journey" aria-labelledby="journey-title">
+    <div class="container">
+      <div class="journey-intro">
+        <p class="eyebrow">How to progress</p>
+        <h2 id="journey-title">Three levels. One next step.</h2>
+        <p class="muted">
+          Follow the levels in order when you are new. Skip Foundations only if Linux, networking, and
+          basic computing already feel comfortable.
+        </p>
+      </div>
+
+      <ol class="journey-rail">
+        {
+          foundations && (
+            <li class="journey-step">
+              <div class="step-index" aria-hidden="true">01</div>
+              <div class="step-body">
+                <p class="step-kicker">Beginner preparation</p>
+                <h3>
+                  <a href={`/tracks/${foundations.id}`}>{foundations.data.title}</a>
+                </h3>
+                <p class="step-copy">{journeyLevelBlurb.foundations}</p>
+                <p class="step-meta muted">
+                  Essential topics for everyone · optional topics if you already know them
+                </p>
+                <a class="step-cta" href={`/tracks/${foundations.id}`}>
+                  Enter Foundations →
+                </a>
+              </div>
+            </li>
+          )
+        }
+
+        {
+          core && (
+            <li class="journey-step">
+              <div class="step-index" aria-hidden="true">02</div>
+              <div class="step-body">
+                <p class="step-kicker">Shared cybersecurity skills</p>
+                <h3>
+                  <a href={`/tracks/${core.id}`}>{core.data.title}</a>
+                </h3>
+                <p class="step-copy">{journeyLevelBlurb.core}</p>
+                <p class="step-meta muted">Ethics · web · tooling · methodology · practice habits</p>
+                <a class="step-cta" href={`/tracks/${core.id}`}>
+                  Enter Core Skills →
+                </a>
+              </div>
+            </li>
+          )
+        }
+
+        <li class="journey-step" id="specialize">
+          <div class="step-index" aria-hidden="true">03</div>
+          <div class="step-body">
+            <p class="step-kicker">Specialize</p>
+            <h3>Choose your specialization</h3>
+            <p class="step-copy">{journeyLevelBlurb.specialization}</p>
+
+            <ul class="spec-list">
+              {
+                specializations.map((path) => (
+                  <li>
+                    <a href={`/tracks/${path.id}`}>
+                      <span class="spec-name">{focusLabel[path.data.focus]}</span>
+                      <span class="spec-copy">{focusBlurb[path.data.focus]}</span>
+                      <span class="spec-go" aria-hidden="true">
+                        →
+                      </span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </li>
+      </ol>
+
       {
-        tracks.map((t, i) => (
-          <TrackCard
-            slug={t.id}
-            title={t.data.title}
-            short={t.data.short}
-            level={t.data.level}
-            index={i}
-          />
-        ))
+        optionalDepth.length > 0 && (
+          <aside class="optional-depth" aria-labelledby="optional-title">
+            <h2 id="optional-title">Optional advanced depth</h2>
+            <p class="muted">
+              Not a primary specialization. Useful after Blue Team footing when you want deeper binary
+              analysis practice.
+            </p>
+            <ul class="optional-list">
+              {optionalDepth.map((path) => (
+                <li>
+                  <a href={`/tracks/${path.id}`}>
+                    <strong>{path.data.title}</strong>
+                    <span>{path.data.short}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )
       }
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .paths-hero .lede {
+    max-width: 40rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.35rem;
+  }
+
+  .journey-intro {
+    margin-bottom: 1.75rem;
+    max-width: 40rem;
+  }
+
+  .journey-intro h2 {
+    margin: 0 0 0.55rem;
+  }
+
+  .journey-intro p {
+    margin: 0;
+  }
+
+  .journey-rail {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0;
+    border-left: 1px solid var(--cc-line-strong);
+    margin-left: 0.65rem;
+  }
+
+  .journey-step {
+    position: relative;
+    display: grid;
+    gap: 0.85rem;
+    padding: 0 0 2rem 1.35rem;
+  }
+
+  .journey-step:last-of-type {
+    padding-bottom: 0;
+  }
+
+  .step-index {
+    position: absolute;
+    left: -0.65rem;
+    top: 0.15rem;
+    transform: translateX(-50%);
+    width: 2rem;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    color: var(--cc-accent);
+    background: var(--cc-ink);
+    border: 1px solid color-mix(in srgb, var(--cc-accent) 40%, var(--cc-line));
+  }
+
+  .step-body {
+    display: grid;
+    gap: 0.45rem;
+    padding-top: 0.1rem;
+  }
+
+  .step-kicker {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cc-text-faint);
+  }
+
+  .step-body h3 {
+    margin: 0;
+    font-size: clamp(1.25rem, 3vw, 1.55rem);
+  }
+
+  .step-body h3 a {
+    color: var(--cc-paper-bright);
+    text-decoration: none;
+  }
+
+  .step-body h3 a:hover {
+    color: var(--cc-accent);
+  }
+
+  .step-copy,
+  .step-meta {
+    margin: 0;
+    max-width: 38rem;
+    font-size: 0.95rem;
+  }
+
+  .step-copy {
+    color: var(--cc-text-muted);
+  }
+
+  .step-cta {
+    margin-top: 0.35rem;
+    width: fit-content;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+  }
+
+  .spec-list {
+    list-style: none;
+    margin: 0.85rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .spec-list a {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.25rem 1rem;
+    align-items: center;
+    padding: 0.95rem 1rem;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid var(--cc-line);
+    background: var(--cc-surface);
+    transition:
+      border-color var(--duration) var(--ease-out),
+      background var(--duration) var(--ease-out);
+  }
+
+  .spec-list a:hover {
+    border-color: color-mix(in srgb, var(--cc-accent) 35%, var(--cc-line));
+    background: var(--cc-surface-2);
+    color: inherit;
+  }
+
+  .spec-name {
+    grid-column: 1;
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--cc-accent);
+  }
+
+  .spec-copy {
+    grid-column: 1;
+    font-size: 0.9rem;
+    color: var(--cc-text-muted);
+    line-height: 1.45;
+  }
+
+  .spec-go {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    color: var(--cc-accent);
+    font-size: 1.1rem;
+  }
+
+  .optional-depth {
+    margin-top: 2.75rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--cc-line);
+    max-width: 40rem;
+  }
+
+  .optional-depth h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+  }
+
+  .optional-depth > p {
+    margin: 0 0 1rem;
+  }
+
+  .optional-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .optional-list a {
+    display: grid;
+    gap: 0.2rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .optional-list strong {
+    font-family: var(--font-display);
+    color: var(--cc-paper-bright);
+  }
+
+  .optional-list span {
+    color: var(--cc-text-muted);
+    font-size: 0.92rem;
+  }
+
+  .optional-list a:hover strong {
+    color: var(--cc-accent);
+  }
+
+  @media (min-width: 720px) {
+    .journey-rail {
+      margin-left: 1rem;
+    }
+
+    .journey-step {
+      padding-left: 1.75rem;
+    }
+
+    .spec-list {
+      gap: 0.75rem;
+    }
+  }
+
+  @media (min-width: 960px) {
+    .spec-list {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .spec-list a {
+      grid-template-columns: 1fr;
+      min-height: 8.5rem;
+      align-content: start;
+    }
+
+    .spec-go {
+      grid-column: 1;
+      grid-row: auto;
+      margin-top: auto;
+      padding-top: 0.75rem;
+    }
+  }
+</style>

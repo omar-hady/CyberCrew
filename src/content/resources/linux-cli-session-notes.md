@@ -1,7 +1,7 @@
 ---
 title: Linux CLI for Security Learners — Session Notes
 description: Session outline covering navigation, permissions, processes, and networking basics for security work.
-track: general
+track: cybersecurity-foundations
 difficulty: beginner
 type: session
 tags:

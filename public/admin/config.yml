@@ -70,15 +70,18 @@ collections:
     fields:
       - { label: Title, name: title, widget: string }
       - { label: Description, name: description, widget: text }
-      - label: Learning track
+      - label: Learning path
         name: track
         widget: select
         options:
-          - { label: Penetration Testing, value: penetration-testing }
+          - { label: Cybersecurity Foundations, value: cybersecurity-foundations }
+          - { label: Core Cybersecurity Skills, value: core-cybersecurity-skills }
+          - { label: Penetration Testing (Red Team), value: penetration-testing }
           - { label: "SOC & Blue Team", value: soc-blue-team }
-          - { label: Malware Analysis, value: malware-analysis }
+          - { label: Malware Analysis (Optional depth), value: malware-analysis }
           - { label: CTF Learning, value: ctf-learning }
           - { label: General, value: general }
+        hint: Tags the resource for library filters. To place it inside a path stage, also attach it under Learning Paths → Stages → Resources.
       - label: Difficulty
         name: difficulty
         widget: select
@@ -152,26 +155,86 @@ collections:
       - { label: Body, name: body, widget: markdown, required: false }
 
   - name: tracks
-    label: Tracks
-    label_singular: Track
+    label: Learning Paths
+    label_singular: Learning Path
     folder: src/content/tracks
     create: false
     slug: "{{slug}}"
     extension: md
     format: frontmatter
+    summary: "{{title}} — {{journeyLevel}} / {{focus}}"
     fields:
       - { label: Title, name: title, widget: string }
       - { label: Short description, name: short, widget: text }
       - { label: Level label, name: level, widget: string }
       - { label: Order, name: order, widget: number, value_type: int }
+      - label: Journey level
+        name: journeyLevel
+        widget: select
+        options:
+          - { label: Foundations, value: foundations }
+          - { label: Core skills, value: core }
+          - { label: Specialization, value: specialization }
+        hint: Controls where this path sits in Foundations → Core → Specialize on the hub page.
+      - label: Focus
+        name: focus
+        widget: select
+        options:
+          - { label: Red Team, value: red-team }
+          - { label: Blue Team, value: blue-team }
+          - { label: CTF, value: ctf }
+          - { label: Specialized / shared, value: specialized }
+        hint: Specialization badge (Red / Blue / CTF). Use Specialized for Foundations, Core, and optional depth paths like Malware.
       - label: Objectives
         name: objectives
         widget: list
-      - label: Roadmap
-        name: roadmap
+      - label: Stages
+        name: stages
         widget: list
+        summary: "{{fields.title}}"
+        hint: Ordered learning stages. Attach CyberCrew library Resources by slug. Use Suggestions for external recommendations (CS50, MDN, etc.).
         fields:
+          - label: Stage ID
+            name: id
+            widget: string
+            hint: Stable URL anchor slug (lowercase, hyphens). Example — foundations-and-ethics
           - { label: Title, name: title, widget: string }
           - { label: Description, name: description, widget: text }
+          - label: Importance
+            name: importance
+            widget: select
+            options:
+              - { label: Essential, value: essential }
+              - { label: Optional, value: optional }
+            default: essential
+            hint: Use Optional for background topics learners can skip if they already have that foundation.
+          - label: CyberCrew resources
+            name: resources
+            widget: relation
+            collection: resources
+            multiple: true
+            required: false
+            search_fields: [title, description]
+            value_field: "{{slug}}"
+            display_fields: [title]
+            hint: Pick published library resources for this stage. Leave empty if content is still forthcoming.
+          - label: External suggestions
+            name: suggestions
+            widget: list
+            required: false
+            summary: "{{fields.title}}"
+            hint: External recommendations that are NOT CyberCrew resources. Always clarify that in the note.
+            fields:
+              - { label: Title, name: title, widget: string }
+              - label: URL
+                name: url
+                widget: string
+                required: false
+                hint: Prefer https URLs to well-known public materials.
+              - label: Note
+                name: note
+                widget: text
+                required: false
+                hint: e.g. Suggested external course — not a CyberCrew resource.
       - { label: Tools, name: tools, widget: list, required: false }
       - { label: Body, name: body, widget: markdown, required: false }

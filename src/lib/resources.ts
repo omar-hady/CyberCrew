@@ -60,9 +60,11 @@ export const typeLabel: Record<string, string> = {
 };
 
 export const trackLabel: Record<string, string> = {
-  "penetration-testing": "Penetration Testing",
-  "soc-blue-team": "SOC & Blue Team",
+  "cybersecurity-foundations": "Cybersecurity Foundations",
+  "core-cybersecurity-skills": "Core Cybersecurity Skills",
+  "penetration-testing": "Red Team",
+  "soc-blue-team": "Blue Team",
   "malware-analysis": "Malware Analysis",
-  "ctf-learning": "CTF Learning",
+  "ctf-learning": "CTF",
   general: "General",
 };

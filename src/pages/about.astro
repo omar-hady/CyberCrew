@@ -1,14 +1,14 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { site } from "../data/site";
-import { getTracks } from "../lib/tracks";
+import { getJourneyListing, getTracks, journeyLevelLabel } from "../lib/tracks";
 
-const tracks = await getTracks();
+const tracks = getJourneyListing(await getTracks());
 ---
 
 <BaseLayout
   title="About"
-  description="About CyberCrew — purpose, learning philosophy, and tracks for the cybersecurity community."
+  description="About CyberCrew — purpose, learning philosophy, and the Foundations → Core → Specialize journey."
 >
   <section class="page-hero">
     <div class="container">
@@ -23,8 +23,8 @@ const tracks = await getTracks();
       <article class="panel block">
         <h2>Purpose</h2>
         <p class="muted">
-          CyberCrew helps people learn cybersecurity through structured tracks, shared resources,
-          community sessions, and challenge practice. We emphasize ethics, methodology, and
+          CyberCrew helps people learn cybersecurity through a clear learning journey, shared
+          resources, community sessions, and challenge practice. We emphasize ethics, methodology, and
           notes that compound — not hype, fake metrics, or tool collecting for its own sake.
         </p>
 
@@ -32,18 +32,21 @@ const tracks = await getTracks();
         <ul>
           <li>Ethics and scope come before techniques.</li>
           <li>Methodology beats tool collecting.</li>
+          <li>Foundations and core skills come before specialization.</li>
           <li>Notes and writeups compound faster than isolated solves.</li>
           <li>Community knowledge should be easy to publish and discover.</li>
           <li>We do not invent metrics, certificates, or fake member counts.</li>
         </ul>
 
-        <h2>Tracks</h2>
+        <h2>Learning journey</h2>
         <div class="track-links">
           {
             tracks.map((t) => (
               <a href={`/tracks/${t.id}`}>
                 <strong>{t.data.title}</strong>
-                <span>{t.data.short}</span>
+                <span>
+                  {journeyLevelLabel[t.data.journeyLevel]} — {t.data.short}
+                </span>
               </a>
             ))
           }
@@ -68,7 +71,7 @@ const tracks = await getTracks();
         <p class="caption muted">
           The CyberCrew emblem — the red geometric mark used across the platform.
         </p>
-        <a class="btn" href="/tracks">Start with a track</a>
+        <a class="btn" href="/tracks">Start the learning journey</a>
         <a class="btn btn-secondary" href="/library">Browse the library</a>
       </aside>
     </div>

@@ -1,24 +1,68 @@
 ---
+import {
+  focusLabel,
+  journeyLevelLabel,
+  type JourneyLevel,
+  type PathFocus,
+} from "../lib/tracks";
+
 interface Props {
   slug: string;
   title: string;
   short: string;
   level: string;
   index?: number;
+  focus?: PathFocus;
+  journeyLevel?: JourneyLevel;
+  stageCount?: number;
+  cta?: string;
 }
 
-const { slug, title, short, level, index = 0 } = Astro.props;
+const {
+  slug,
+  title,
+  short,
+  level,
+  index = 0,
+  focus,
+  journeyLevel,
+  stageCount,
+  cta = "Enter path →",
+} = Astro.props;
 const num = String(index + 1).padStart(2, "0");
+const badge =
+  journeyLevel === "specialization" && focus && focus !== "specialized"
+    ? focusLabel[focus]
+    : journeyLevel
+      ? journeyLevelLabel[journeyLevel]
+      : focus
+        ? focusLabel[focus]
+        : level;
 ---
 
-<a class="track-card panel" href={`/tracks/${slug}`}>
+<a class:list={["track-card", "panel", focus && `focus-${focus}`]} href={`/tracks/${slug}`}>
   <div class="top">
     <span class="idx" aria-hidden="true">{num}</span>
-    <span class="level">{level}</span>
+    <span class="badge">{badge}</span>
   </div>
   <h3>{title}</h3>
   <p>{short}</p>
-  <span class="cta">Enter track →</span>
+  <div class="foot">
+    <span class="meta">
+      {level}
+      {
+        typeof stageCount === "number" && (
+          <>
+            <span aria-hidden="true">·</span>
+            <span>
+              {stageCount} stage{stageCount === 1 ? "" : "s"}
+            </span>
+          </>
+        )
+      }
+    </span>
+    <span class="cta">{cta}</span>
+  </div>
 </a>
 
 <style>
@@ -30,9 +74,11 @@ const num = String(index + 1).padStart(2, "0");
     text-decoration: none;
     color: inherit;
     min-height: 12.5rem;
+    height: 100%;
     transition:
       border-color var(--duration) var(--ease-out),
-      background var(--duration) var(--ease-out);
+      background var(--duration) var(--ease-out),
+      transform var(--duration) var(--ease-out);
   }
 
   .track-card:hover {
@@ -41,10 +87,15 @@ const num = String(index + 1).padStart(2, "0");
     color: inherit;
   }
 
+  .track-card:hover .cta {
+    color: var(--cc-paper-bright);
+  }
+
   .top {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 0.75rem;
   }
 
   .idx {
@@ -54,17 +105,20 @@ const num = String(index + 1).padStart(2, "0");
     color: var(--cc-accent);
   }
 
-  .level {
+  .badge {
     font-family: var(--font-mono);
     font-size: 0.68rem;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--cc-text-faint);
+    color: var(--cc-accent);
+    border: 1px solid color-mix(in srgb, var(--cc-accent) 28%, var(--cc-line));
+    background: var(--cc-accent-soft);
+    padding: 0.18rem 0.5rem;
   }
 
   h3 {
     margin: 0;
-    font-size: clamp(1.15rem, 2.5vw, 1.3rem);
+    font-size: clamp(1.15rem, 2.5vw, 1.35rem);
   }
 
   p {
@@ -75,10 +129,36 @@ const num = String(index + 1).padStart(2, "0");
     line-height: 1.5;
   }
 
+  .foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding-top: 0.35rem;
+  }
+
+  .meta {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    color: var(--cc-text-faint);
+  }
+
   .cta {
     font-family: var(--font-display);
     font-weight: 700;
     font-size: 0.88rem;
     color: var(--cc-accent);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .track-card:hover {
+      transform: translateY(-2px);
+    }
   }
 </style>

@@ -1,0 +1,93 @@
+---
+import type { Resource } from "../lib/resources";
+import {
+  difficultyLabel,
+  resourceHref,
+  typeLabel,
+} from "../lib/resources";
+
+interface Props {
+  resource: Resource;
+}
+
+const { resource } = Astro.props;
+const { data } = resource;
+const href = resourceHref(resource);
+---
+
+<a class="stage-resource" href={href}>
+  <div class="copy">
+    <div class="meta">
+      <span class="tag tag-accent">{typeLabel[data.type]}</span>
+      <span class="tag">{difficultyLabel[data.difficulty]}</span>
+    </div>
+    <span class="title">{data.title}</span>
+    <span class="desc">{data.description}</span>
+  </div>
+  <span class="go" aria-hidden="true">View</span>
+</a>
+
+<style>
+  .stage-resource {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.85rem;
+    align-items: center;
+    padding: 0.85rem 0.95rem;
+    text-decoration: none;
+    color: inherit;
+    background: var(--cc-surface-2);
+    border: 1px solid var(--cc-line);
+    transition:
+      border-color var(--duration) var(--ease-out),
+      background var(--duration) var(--ease-out);
+  }
+
+  .stage-resource:hover {
+    border-color: color-mix(in srgb, var(--cc-accent) 32%, var(--cc-line));
+    background: var(--cc-surface-3);
+    color: inherit;
+  }
+
+  .copy {
+    display: grid;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--cc-paper-bright);
+    line-height: 1.25;
+  }
+
+  .stage-resource:hover .title {
+    color: var(--cc-accent);
+  }
+
+  .desc {
+    color: var(--cc-text-muted);
+    font-size: 0.88rem;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .go {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cc-accent);
+  }
+</style>
